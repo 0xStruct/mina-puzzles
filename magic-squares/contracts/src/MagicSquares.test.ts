@@ -18,12 +18,12 @@ describe('puzzle', () => {
     zkAppAddress = zkAppPrivateKey.toPublicKey();
     zkApp = new MagicSquaresZkApp(zkAppAddress);
     puzzle = [
-      [0, 24, 1, 8, 15],
-      [0, 5, 7, 14, 16],
-      [0, 6, 13, 20, 22],
-      [0, 12, 19, 21, 3],
-      [0, 18, 25, 2, 9],
-    ];
+      [0, 24, 1, 8, 0],
+      [23, 0, 7, 0, 16],
+      [4, 6, 0, 20, 22],
+      [10, 0, 19, 0, 3],
+      [0, 18, 25, 2, 0],
+    ]
   });
 
   it('accepts a correct solution', async () => {
@@ -59,11 +59,11 @@ describe('puzzle', () => {
     await deploy(zkApp, zkAppPrivateKey, puzzle, sender, senderKey);
 
     let noSolution = [
-      [1, 24, 1, 8, 15],
-      [1, 5, 7, 14, 16],
-      [1, 6, 13, 20, 22],
-      [1, 12, 19, 21, 3],
-      [1, 18, 25, 2, 9],
+      [1, 24, 1, 8, 1],
+      [23, 1, 7, 1, 16],
+      [4, 6, 1, 20, 22],
+      [10, 1, 19, 1, 3],
+      [1, 18, 25, 2, 1],
     ];
     if (noSolution === undefined) throw Error('cannot happen');
 

@@ -18,11 +18,11 @@ Mina.setActiveInstance(Local);
 
 const { privateKey: senderKey, publicKey: sender } = Local.testAccounts[0];
 const puzzle = [
-  [0, 24, 1, 8, 15],
-  [0, 5, 7, 14, 16],
-  [0, 6, 13, 20, 22],
-  [0, 12, 19, 21, 3],
-  [0, 18, 25, 2, 9],
+  [0, 24, 1, 8, 0],
+  [23, 0, 7, 0, 16],
+  [4, 6, 0, 20, 22],
+  [10, 0, 19, 0, 3],
+  [0, 18, 25, 2, 0],
 ];
 const zkAppPrivateKey = PrivateKey.random();
 const zkAppAddress = zkAppPrivateKey.toPublicKey();
@@ -59,11 +59,11 @@ if (solution === undefined) throw Error('cannot happen');
 
 // submit a wrong solution
 let noSolution = [
-  [1, 24, 1, 8, 15],
-  [1, 5, 7, 14, 16],
-  [1, 6, 13, 20, 22],
-  [1, 12, 19, 21, 3],
-  [1, 18, 25, 2, 9],
+  [1, 24, 1, 8, 1],
+  [23, 0, 7, 0, 16],
+  [4, 6, 0, 20, 22],
+  [10, 0, 19, 0, 3],
+  [0, 18, 25, 2, 0],
 ];
 
 console.log('Submitting wrong solution...');
