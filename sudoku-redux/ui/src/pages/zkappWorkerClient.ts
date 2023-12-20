@@ -47,8 +47,8 @@ export default class ZkappWorkerClient {
   //   return this._call('createUpdateTransaction', {});
   // }
 
-  submitSolution({sudoku, solution}: {sudoku: any; solution: any}) {
-    return this._call('submitSolution', { sudoku, solution});
+  submitSolution({sender, sudoku, solution}: {sender: string, sudoku: any; solution: any}) {
+    return this._call('submitSolution', { sender, sudoku, solution});
   }
 
   proveUpdateTransaction() {

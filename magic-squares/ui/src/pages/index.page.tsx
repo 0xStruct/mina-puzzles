@@ -55,7 +55,7 @@ export default function Home() {
 
     (async () => {
       if (!state.hasBeenSetup) {
-        setSolution(bravo);
+        // setSolution(bravo);
         setDisplayText("Loading web worker...");
         console.log("Loading web worker...");
         const zkappWorkerClient = new ZkappWorkerClient();

@@ -60,9 +60,9 @@ const functions = {
   //   });
   //   state.transaction = transaction;
   // },
-  submitSolution: async (args: { sudoku: any; solution: any }) => {
-    const { sudoku, solution } = args;
-    const transaction = await Mina.transaction(() => {
+  submitSolution: async (args: { sender: string, sudoku: any; solution: any }) => {
+    const { sender, sudoku, solution } = args;
+    const transaction = await Mina.transaction(PublicKey.fromBase58(sender), () => {
       state.zkapp!.submitSolution(Sudoku.from(sudoku), Sudoku.from(solution));
     });
     state.transaction = transaction;

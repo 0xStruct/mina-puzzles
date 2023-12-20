@@ -35,7 +35,7 @@ export default function Home() {
   let [solution, setSolution] = useState(sudoku);
 
   let bravo = solveSudoku(sudoku)!;
-  console.log("bravo", bravo);
+  // console.log("bravo", bravo);
 
   const [displayText, setDisplayText] = useState("");
   const [transactionlink, setTransactionLink] = useState("");
@@ -155,7 +155,7 @@ export default function Home() {
       publicKey: state.publicKey!,
     });
 
-    await state.zkappWorkerClient!.submitSolution({sudoku, solution});
+    await state.zkappWorkerClient!.submitSolution({sender: state.publicKey!.toBase58(), sudoku, solution});
 
     setDisplayText("Creating proof...");
     console.log("Creating proof...");

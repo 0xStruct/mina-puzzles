@@ -57,6 +57,8 @@ class SudokuZkApp extends SmartContract {
     let sudoku = sudokuInstance.value;
     let solution = solutionInstance.value;
 
+    this.isSolved.set(Bool(false));
+
     // first, we check that the passed solution is a valid sudoku
 
     // define helpers
@@ -111,7 +113,7 @@ class SudokuZkApp extends SmartContract {
       .assertEquals(sudokuHash, 'sudoku matches the one committed on-chain');
 
     // all checks passed => the sudoku is solved!
-    // this.isSolved.set(Bool(true));
+    this.isSolved.set(Bool(true));
 
     // emit event
     this.emitEvent(

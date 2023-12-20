@@ -12,7 +12,7 @@ let rightColumnWidth = 275;
 export default function SudokuTable({ sudoku, editable, solution, setSolution }) {
   let cellSize = sudokuWidth / 9 + 'px';
   let fontSize = sudokuWidth / 18 + 'px';
-  console.log('solution', solution);
+  // console.log('solution', solution);
 
   function cloneSudoku(sudoku) {
     if (Array.isArray(sudoku[0])) {
