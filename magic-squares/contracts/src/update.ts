@@ -61,14 +61,15 @@ let zkAppAddress = zkAppKey.toPublicKey();
 let zkApp = new MagicSquaresZkApp(zkAppAddress);
 
 const puzzle = [
-  [0, 24, 1, 8, 15],
-  [0, 5, 7, 14, 16],
-  [0, 6, 13, 20, 22],
-  [0, 12, 19, 21, 3],
-  [0, 18, 25, 2, 9],
+  [0, 24, 1, 8, 0],
+  [23, 0, 7, 0, 16],
+  [4, 6, 0, 20, 22],
+  [10, 0, 19, 0, 3],
+  [0, 18, 25, 2, 0],
 ];
 // note down the output for use in the UI
 console.log(JSON.stringify(puzzle));
+console.log(PuzzleStruct.from(puzzle).hash());
 
 let sentTx;
 // compile the contract to create prover keys
