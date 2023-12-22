@@ -60,7 +60,7 @@ let feepayerAddress = feepayerKey.toPublicKey();
 let zkAppAddress = zkAppKey.toPublicKey();
 let zkApp = new WhereZkApp(zkAppAddress);
 
-const solutionHash = Poseidon.hash([Field(1), Field(2)]);
+const solutionHash = Poseidon.hash([Field(119), Field(91251)]);
 
 let sentTx;
 // compile the contract to create prover keys
