@@ -8,6 +8,8 @@ import {
   Poseidon,
   Struct,
   Provable,
+  provablePure,
+  PublicKey
 } from 'o1js';
 
 export { PuzzleStruct, MagicSquaresZkApp };
@@ -24,18 +26,16 @@ class PuzzleStruct extends Struct({
   }
 }
 
-// to-do emitEvent struct
-// class SolvedEvent extends Struct({ solver: Field, puzzle: Field}) {
-
-// }
-
 class MagicSquaresZkApp extends SmartContract {
   @state(Field) puzzleHash = State<Field>();
   @state(Bool) isSolved = State<Bool>();
 
   // contract events
   events = {
-    solved: Field, // to-do support SolvedEvent struct later
+    solved: provablePure({
+      solver: PublicKey,
+      puzzleHash: Field
+    }),
   };
 
   /**
@@ -128,10 +128,9 @@ class MagicSquaresZkApp extends SmartContract {
     // all checks passed => the puzzle is solved!
     this.isSolved.set(Bool(true));
 
-    // emit event
-    this.emitEvent(
-      'solved',
-      this.sender.toFields()[0] // to-do support SolvedEvent struct later
-    );
+    this.emitEvent('solved', {
+      solver: this.sender,
+      puzzleHash: puzzleHash,
+    });
   }
 }

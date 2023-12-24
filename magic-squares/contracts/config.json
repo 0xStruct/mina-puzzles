@@ -8,6 +8,14 @@
       "feepayerAlias": "feepayer",
       "fee": "0.1",
       "smartContract": "MagicSquaresZkApp"
+    },
+    "magic2": {
+      "url": "https://proxy.berkeley.minaexplorer.com/graphql",
+      "keyPath": "keys/magic2.json",
+      "feepayerKeyPath": "/Users/apple/.cache/zkapp-cli/keys/feepayer.json",
+      "feepayerAlias": "feepayer",
+      "fee": "0.1",
+      "smartContract": "MagicSquaresZkApp"
     }
   }
 }

@@ -6,7 +6,9 @@ import {
   Struct,
   Field,
   Provable,
+  ProvablePure,
   Poseidon,
+  UInt32,
 } from "o1js";
 
 type Transaction = Awaited<ReturnType<typeof Mina.transaction>>;
@@ -14,6 +16,24 @@ type Transaction = Awaited<ReturnType<typeof Mina.transaction>>;
 // ---------------------------------------------------------------------------------------
 
 import type { MagicSquaresZkApp } from "../../../contracts/src/MagicSquares";
+
+type MinaEvent = {
+  type: string;
+  event: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: ProvablePure<any>;
+    transactionInfo: {
+      transactionHash: string;
+      transactionStatus: string;
+      transactionMemo: string;
+    };
+  };
+  blockHeight: UInt32;
+  blockHash: string;
+  parentBlockHash: string;
+  globalSlot: UInt32;
+  chainStatus: string;
+}
 
 const state = {
   MagicSquaresZkApp: null as null | typeof MagicSquaresZkApp,
@@ -33,12 +53,12 @@ class PuzzleStruct extends Struct({
 }
 
 // ---------------------------------------------------------------------------------------
-
 const functions = {
   setActiveInstanceToBerkeley: async (args: {}) => {
-    const Berkeley = Mina.Network(
-      "https://proxy.berkeley.minaexplorer.com/graphql"
-    );
+    const Berkeley = Mina.Network({
+      mina: "https://proxy.berkeley.minaexplorer.com/graphql",
+      archive: "https://archive.berkeley.minaexplorer.com",
+    });
     console.log("Berkeley Instance Created");
     Mina.setActiveInstance(Berkeley);
   },
@@ -55,6 +75,17 @@ const functions = {
     const publicKey = PublicKey.fromBase58(args.publicKey58);
     return await fetchAccount({ publicKey });
   },
+  fetchEvents: async (args: {}) => {
+    const minaEvents: MinaEvent[] = await state.zkapp!.fetchEvents(UInt32.from(0));
+
+    let events: any[] = [];
+    minaEvents.map((e) => {
+      // @ts-ignore
+      events.push({solver: e.event.data.solver.toBase58(), puzzleHash:e.event.data.puzzleHash.toJSON()})
+    })
+
+    return events;
+  },
   initZkappInstance: async (args: { publicKey58: string }) => {
     const publicKey = PublicKey.fromBase58(args.publicKey58);
     state.zkapp = new state.MagicSquaresZkApp!(publicKey);
@@ -69,14 +100,21 @@ const functions = {
   //   });
   //   state.transaction = transaction;
   // },
-  submitSolution: async (args: { sender: string, puzzle: any; solution: any }) => {
+  submitSolution: async (args: {
+    sender: string;
+    puzzle: any;
+    solution: any;
+  }) => {
     const { sender, puzzle, solution } = args;
-    const transaction = await Mina.transaction(PublicKey.fromBase58(sender), () => {
-      state.zkapp!.submitSolution(
-        PuzzleStruct.from(puzzle),
-        PuzzleStruct.from(solution)
-      );
-    });
+    const transaction = await Mina.transaction(
+      PublicKey.fromBase58(sender),
+      () => {
+        state.zkapp!.submitSolution(
+          PuzzleStruct.from(puzzle),
+          PuzzleStruct.from(solution)
+        );
+      }
+    );
     state.transaction = transaction;
   },
   proveTransaction: async (args: {}) => {

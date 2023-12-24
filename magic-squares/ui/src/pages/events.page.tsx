@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
 import "./reactCOIServiceWorker";
 import ZkappWorkerClient from "./zkappWorkerClient";
-import { PublicKey, Field } from "o1js";
-import MagicSquaresTable from "../components/MagicSquaresTable";
+import { PublicKey, Field, UInt32, ProvablePure } from "o1js";
 import styles from "../styles/Home.module.css";
 
 let transactionFee = 0.1;
 const ZKAPP_ADDRESS = process.env.NEXT_PUBLIC_ZKAPP_ADDRESS;
 
-export default function Home() {
+export default function Events() {
   const [state, setState] = useState({
     zkappWorkerClient: null as null | ZkappWorkerClient,
     hasWallet: null as null | boolean,
@@ -25,24 +24,6 @@ export default function Home() {
     currentUser: 0,
     isLoaded: false,
   });
-
-  let puzzle = [
-    [0, 24, 1, 8, 0],
-    [23, 0, 7, 0, 16],
-    [4, 6, 0, 20, 22],
-    [10, 0, 19, 0, 3],
-    [0, 18, 25, 2, 0],
-  ];
-  let [solution, setSolution] = useState(puzzle);
-
-  let bravo = [
-      [17, 24, 1, 8, 15],
-      [23, 5, 7, 14, 16],
-      [4, 6, 13, 20, 22],
-      [10, 12, 19, 21, 3],
-      [11, 18, 25, 2, 9],
-    ];
-  // console.log("bravo", bravo);
 
   const [displayText, setDisplayText] = useState("");
   const [transactionlink, setTransactionLink] = useState("");
@@ -61,7 +42,6 @@ export default function Home() {
 
     (async () => {
       if (!state.hasBeenSetup) {
-        // setSolution(bravo);
         setDisplayText("Loading web worker...");
         console.log("Loading web worker...");
         const zkappWorkerClient = new ZkappWorkerClient();
@@ -95,13 +75,18 @@ export default function Home() {
 
         await zkappWorkerClient.loadContract();
 
+        // console.log("Compiling zkApp...");
+        // setDisplayText("Compiling zkApp...");
+        // await zkappWorkerClient.compileContract();
+        // console.log("zkApp compiled");
+        // setDisplayText("zkApp compiled...");
+
         const zkappPublicKey = PublicKey.fromBase58(ZKAPP_ADDRESS!);
 
         await zkappWorkerClient.initZkappInstance(zkappPublicKey);
 
         // fetching events
         console.log("fetching events");
-        setDisplayText("Getting puzzle statistics from contract events...");
         let events: any[] = await zkappWorkerClient.fetchEvents() as any[];
 
         let currentUserSolvedCount = 0;
@@ -115,7 +100,6 @@ export default function Home() {
           currentUser: currentUserSolvedCount,
           isLoaded: true,
         });
-        setDisplayText("");
 
         console.log("Getting zkApp state...");
         setDisplayText("Getting zkApp state...");
@@ -123,12 +107,6 @@ export default function Home() {
         const puzzleHash = await zkappWorkerClient.getPuzzleHash();
         console.log(`Current state in zkApp: ${puzzleHash.toString()}`);
         setDisplayText("");
-
-        console.log("Compiling zkApp...");
-        setDisplayText("Compiling zkApp...");
-        await zkappWorkerClient.compileContract();
-        console.log("zkApp compiled");
-        setDisplayText("zkApp compiled...");
 
         setState({
           ...state,
@@ -166,64 +144,6 @@ export default function Home() {
       }
     })();
   }, [state.hasBeenSetup]);
-
-  // -------------------------------------------------------
-  // Submit Solution
-
-  const onSubmitSolution = async () => {
-    setState({ ...state, creatingTransaction: true });
-
-    setDisplayText("Submitting a solution...");
-    console.log("Submitting a solution...");
-
-    await state.zkappWorkerClient!.fetchAccount({
-      publicKey: state.publicKey!,
-    });
-
-    await state.zkappWorkerClient!.submitSolution({sender: state.publicKey!.toBase58(), puzzle, solution});
-
-    setDisplayText("Creating proof...");
-    console.log("Creating proof...");
-    await state.zkappWorkerClient!.proveTransaction();
-
-    console.log("Requesting send transaction...");
-    setDisplayText("Requesting send transaction...");
-    const transactionJSON = await state.zkappWorkerClient!.getTransactionJSON();
-
-    setDisplayText("Getting transaction JSON...");
-    console.log("Getting transaction JSON...");
-    const { hash } = await (window as any).mina.sendTransaction({
-      transaction: transactionJSON,
-      feePayer: {
-        fee: transactionFee,
-        memo: "",
-      },
-    });
-
-    const transactionLink = `https://berkeley.minaexplorer.com/transaction/${hash}`;
-    console.log(`View transaction at ${transactionLink}`);
-
-    setTransactionLink(transactionLink);
-    setDisplayText(transactionLink);
-
-    setState({ ...state, creatingTransaction: false });
-  };
-
-  // -------------------------------------------------------
-  // Refresh the current state
-
-  const onRefreshState = async () => {
-    console.log("Getting zkApp state...");
-    setDisplayText("Getting zkApp state...");
-
-    await state.zkappWorkerClient!.fetchAccount({
-      publicKey: state.zkappPublicKey!,
-    });
-    const puzzleHash = await state.zkappWorkerClient!.getPuzzleHash();
-    setState({ ...state, puzzleHash });
-    console.log(`Current state in zkApp: ${puzzleHash.toString()}`);
-    setDisplayText("");
-  };
 
   // -------------------------------------------------------
   // Create UI elements
@@ -276,43 +196,12 @@ export default function Home() {
     );
   }
 
-  let mainContent;
-  if (state.hasBeenSetup && state.accountExists) {
-    mainContent = (
-      <>
-        <div style={{ justifyContent: "center", alignItems: "center" }}>
-          <button
-            className={styles.card}
-            onClick={onSubmitSolution}
-            disabled={state.creatingTransaction}
-          >
-            Submit Solution
-          </button>
-        </div>
-        {/*
-        <div style={{ justifyContent: "center", alignItems: "center" }}>
-          <div className={styles.center} style={{ padding: 0 }}>
-            Current state in zkApp: {state.puzzleHash!.toString()}{" "}
-          </div>
-          <button
-            className={styles.card}
-            onClick={onRefreshState}
-          >
-            Get Latest State
-          </button>
-        </div>
-        */}
-      </>
-    );
-  }
-
   let solvedContent;
-  if(solved.isLoaded === true && solved.currentUser === 0) {
-    solvedContent = <>The puzzle has been solved {solved.total} times. BUT you haven't solved it yet.</>;
+  if(solved.isLoaded === true) {
+    solvedContent = <>The puzzle has been solved {solved.total} times. You have solved {solved.currentUser} times.</>;
   }
-
-  if(solved.isLoaded === true && solved.currentUser > 0) {
-    solvedContent = <>The puzzle has been solved {solved.total} times. AND you are one of them!.</>;
+  if(solved.isLoaded === false) {
+    solvedContent = <>Getting puzzle statistics from contract events.</>;
   }
 
   return (
@@ -320,15 +209,8 @@ export default function Home() {
       <div className={styles.main} style={{ padding: 0 }}>
         <div className={styles.center} style={{ padding: 0 }}>
           <h2 style={{ margin: "1rem" }}>Mina Puzzles: Magic Squares</h2>
-          <MagicSquaresTable
-            puzzle={puzzle}
-            editable
-            solution={solution}
-            setSolution={setSolution}
-          />
-          {mainContent}
-          <hr />
           {solvedContent}
+          <hr />
           {setup}
           {accountDoesNotExist}
         </div>

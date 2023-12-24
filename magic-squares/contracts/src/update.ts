@@ -77,7 +77,6 @@ console.log('compile the contract...');
 await MagicSquaresZkApp.compile();
 try {
   // init
-  console.log(zkAppAddress);
   await fetchAccount({ publicKey: zkAppAddress });
   console.log('Is the puzzle solved?', zkApp.isSolved.get().toBoolean());
   console.log('update puzzle hash...');

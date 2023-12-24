@@ -32,6 +32,10 @@ export default class ZkappWorkerClient {
     return result as ReturnType<typeof fetchAccount>;
   }
 
+  fetchEvents() {
+    return this._call("fetchEvents", {});
+  }
+
   initZkappInstance(publicKey: PublicKey) {
     return this._call("initZkappInstance", {
       publicKey58: publicKey.toBase58(),
