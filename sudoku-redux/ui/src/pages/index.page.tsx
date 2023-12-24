@@ -21,6 +21,12 @@ export default function Home() {
     creatingTransaction: false,
   });
 
+  const [solved, setSolved] = useState({
+    total: 0,
+    currentUser: 0,
+    isLoaded: false,
+  });
+
   let sudoku = [
     [0, 0, 0, 0, 0, 0, 4, 5, 0],
     [6, 2, 0, 0, 0, 9, 8, 0, 7],
@@ -88,15 +94,27 @@ export default function Home() {
 
         await zkappWorkerClient.loadContract();
 
-        console.log("Compiling zkApp...");
-        setDisplayText("Compiling zkApp...");
-        await zkappWorkerClient.compileContract();
-        console.log("zkApp compiled");
-        setDisplayText("zkApp compiled...");
-
         const zkappPublicKey = PublicKey.fromBase58(ZKAPP_ADDRESS!);
 
         await zkappWorkerClient.initZkappInstance(zkappPublicKey);
+
+        // fetching events
+        console.log("fetching events");
+        setDisplayText("Getting puzzle statistics from contract events...");
+        let events: any[] = await zkappWorkerClient.fetchEvents() as any[];
+
+        let currentUserSolvedCount = 0;
+
+        events.map((e) => {
+          if(e.solver === publicKeyBase58) currentUserSolvedCount++;
+        });
+
+        setSolved({
+          total: events.length,
+          currentUser: currentUserSolvedCount,
+          isLoaded: true,
+        });
+        setDisplayText("");
 
         console.log("Getting zkApp state...");
         setDisplayText("Getting zkApp state...");
@@ -104,6 +122,12 @@ export default function Home() {
         const sudokuHash = await zkappWorkerClient.getSudokuHash();
         console.log(`Current state in zkApp: ${sudokuHash.toString()}`);
         setDisplayText("");
+
+        console.log("Compiling zkApp...");
+        setDisplayText("Compiling zkApp...");
+        await zkappWorkerClient.compileContract();
+        console.log("zkApp compiled");
+        setDisplayText("zkApp compiled...");
 
         setState({
           ...state,
@@ -264,7 +288,8 @@ export default function Home() {
             Submit Solution
           </button>
         </div>
-        {/*<div style={{ justifyContent: "center", alignItems: "center" }}>
+        {/*
+        <div style={{ justifyContent: "center", alignItems: "center" }}>
           <div className={styles.center} style={{ padding: 0 }}>
             Current state in zkApp: {state.sudokuHash!.toString()}{" "}
           </div>
@@ -274,9 +299,19 @@ export default function Home() {
           >
             Get Latest State
           </button>
-    </div>*/}
+        </div>
+        */}
       </>
     );
+  }
+
+  let solvedContent;
+  if(solved.isLoaded === true && solved.currentUser === 0) {
+    solvedContent = <>The puzzle has been solved {solved.total} times. BUT you haven't solved it yet.</>;
+  }
+
+  if(solved.isLoaded === true && solved.currentUser > 0) {
+    solvedContent = <>The puzzle has been solved {solved.total} times. AND you are one of them!.</>;
   }
 
   return (
@@ -292,6 +327,7 @@ export default function Home() {
           />
           {mainContent}
           <hr />
+          {solvedContent}
           {setup}
           {accountDoesNotExist}
         </div>

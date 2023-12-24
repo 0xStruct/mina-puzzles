@@ -38,6 +38,10 @@ export default class ZkappWorkerClient {
     });
   }
 
+  fetchEvents() {
+    return this._call("fetchEvents", {});
+  }
+
   async getSudokuHash(): Promise<Field> {
     const result = await this._call("getSudokuHash", {});
     return Field.fromJSON(JSON.parse(result as string));

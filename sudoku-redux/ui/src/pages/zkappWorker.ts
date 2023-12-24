@@ -1,10 +1,38 @@
-import { Mina, PublicKey, fetchAccount, Struct, Field, Provable, Poseidon } from "o1js";
+import {
+  Mina,
+  PublicKey,
+  fetchAccount,
+  Struct,
+  Field,
+  Provable,
+  ProvablePure,
+  Poseidon,
+  UInt32,
+} from "o1js";
 
 type Transaction = Awaited<ReturnType<typeof Mina.transaction>>;
 
 // ---------------------------------------------------------------------------------------
 
 import type { SudokuZkApp } from "../../../contracts/src/sudoku";
+
+type MinaEvent = {
+  type: string;
+  event: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: ProvablePure<any>;
+    transactionInfo: {
+      transactionHash: string;
+      transactionStatus: string;
+      transactionMemo: string;
+    };
+  };
+  blockHeight: UInt32;
+  blockHash: string;
+  parentBlockHash: string;
+  globalSlot: UInt32;
+  chainStatus: string;
+};
 
 const state = {
   SudokuZkApp: null as null | typeof SudokuZkApp,
@@ -27,9 +55,10 @@ class Sudoku extends Struct({
 
 const functions = {
   setActiveInstanceToBerkeley: async (args: {}) => {
-    const Berkeley = Mina.Network(
-      "https://proxy.berkeley.minaexplorer.com/graphql"
-    );
+    const Berkeley = Mina.Network({
+      mina: "https://proxy.berkeley.minaexplorer.com/graphql",
+      archive: "https://archive.berkeley.minaexplorer.com",
+    });
     console.log("Berkeley Instance Created");
     Mina.setActiveInstance(Berkeley);
   },
@@ -46,6 +75,22 @@ const functions = {
     const publicKey = PublicKey.fromBase58(args.publicKey58);
     return await fetchAccount({ publicKey });
   },
+  fetchEvents: async (args: {}) => {
+    const minaEvents: MinaEvent[] = await state.zkapp!.fetchEvents(
+      UInt32.from(0)
+    );
+
+    let events: any[] = [];
+    minaEvents.map((e) => {
+      // @ts-ignore
+      events.push({
+        solver: e.event.data.solver.toBase58(),
+        puzzleHash: e.event.data.puzzleHash.toJSON(),
+      });
+    });
+
+    return events;
+  },
   initZkappInstance: async (args: { publicKey58: string }) => {
     const publicKey = PublicKey.fromBase58(args.publicKey58);
     state.zkapp = new state.SudokuZkApp!(publicKey);
@@ -60,11 +105,18 @@ const functions = {
   //   });
   //   state.transaction = transaction;
   // },
-  submitSolution: async (args: { sender: string, sudoku: any; solution: any }) => {
+  submitSolution: async (args: {
+    sender: string;
+    sudoku: any;
+    solution: any;
+  }) => {
     const { sender, sudoku, solution } = args;
-    const transaction = await Mina.transaction(PublicKey.fromBase58(sender), () => {
-      state.zkapp!.submitSolution(Sudoku.from(sudoku), Sudoku.from(solution));
-    });
+    const transaction = await Mina.transaction(
+      PublicKey.fromBase58(sender),
+      () => {
+        state.zkapp!.submitSolution(Sudoku.from(sudoku), Sudoku.from(solution));
+      }
+    );
     state.transaction = transaction;
   },
   proveUpdateTransaction: async (args: {}) => {
