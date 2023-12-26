@@ -42,17 +42,23 @@ export default class ZkappWorkerClient {
     });
   }
 
-  async getPuzzleHash(): Promise<Field> {
-    const result = await this._call("getPuzzleHash", {});
-    return Field.fromJSON(JSON.parse(result as string));
+  async getPuzzleHashes(): Promise<Field[]> {
+    const result = await this._call("getPuzzleHashes", {});
+    const puzzleHashes = await JSON.parse(result as string);
+    return [
+      Field.fromJSON(puzzleHashes[0]),
+      Field.fromJSON(puzzleHashes[1]),
+      Field.fromJSON(puzzleHashes[2]),
+      Field.fromJSON(puzzleHashes[3])
+    ];
   }
 
   // createUpdateTransaction() {
   //   return this._call('createUpdateTransaction', {});
   // }
 
-  submitSolution({sender, puzzle, solution}: {sender: string, puzzle: any; solution: any}) {
-    return this._call('submitSolution', { sender, puzzle, solution});
+  submitSolution({sender, puzzleRef, puzzle, solution}: {sender: string, puzzleRef: number; puzzle: any; solution: any}) {
+    return this._call('submitSolution', { sender, puzzleRef, puzzle, solution});
   }
   
   proveTransaction() {

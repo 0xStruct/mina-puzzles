@@ -14,10 +14,11 @@ export default function Home() {
     hasWallet: null as null | boolean,
     hasBeenSetup: false,
     accountExists: false,
-    puzzleHash: null as null | Field,
+    puzzleHashes: null as null | Field[],
     publicKey: null as null | PublicKey,
     zkappPublicKey: null as null | PublicKey,
     creatingTransaction: false,
+    puzzleRef: Number,
   });
 
   const [solved, setSolved] = useState({
@@ -26,22 +27,50 @@ export default function Home() {
     isLoaded: false,
   });
 
-  let puzzle = [
-    [0, 24, 1, 8, 0],
-    [23, 0, 7, 0, 16],
-    [4, 6, 0, 20, 22],
-    [10, 0, 19, 0, 3],
-    [0, 18, 25, 2, 0],
-  ];
-  let [solution, setSolution] = useState(puzzle);
+  const [selectedPuzzle, setSelectedPuzzle] = useState(1);
 
-  let bravo = [
+  let puzzles = [
+    [[]], // empty puzzle for index 0
+    [
+      [0, 24, 1, 8, 0],
+      [23, 0, 7, 0, 16],
+      [4, 6, 0, 20, 22],
+      [10, 0, 19, 0, 3],
+      [0, 18, 25, 2, 0],
+    ],
+    [
+      [17, 0, 1, 8, 15],
+      [23, 0, 7, 14, 16],
+      [4, 0, 13, 20, 22],
+      [10, 0, 19, 21, 3],
+      [11, 0, 25, 2, 9],
+    ],
+    [
+      [17, 24, 1, 0, 15],
+      [23, 5, 7, 0, 16],
+      [4, 6, 13, 0, 22],
+      [10, 12, 19, 0, 3],
+      [11, 18, 25, 0, 9],
+    ],
+    [
       [17, 24, 1, 8, 15],
-      [23, 5, 7, 14, 16],
+      [0, 0, 0, 0, 0],
       [4, 6, 13, 20, 22],
       [10, 12, 19, 21, 3],
       [11, 18, 25, 2, 9],
-    ];
+    ],
+  ];
+
+  const [puzzle, setPuzzle] = useState(puzzles[1]);
+  let [solution, setSolution] = useState(puzzles[1]);
+
+  let bravo = [
+    [17, 24, 1, 8, 15],
+    [23, 5, 7, 14, 16],
+    [4, 6, 13, 20, 22],
+    [10, 12, 19, 21, 3],
+    [11, 18, 25, 2, 9],
+  ];
   // console.log("bravo", bravo);
 
   const [displayText, setDisplayText] = useState("");
@@ -102,12 +131,12 @@ export default function Home() {
         // fetching events
         console.log("fetching events");
         setDisplayText("Getting puzzle statistics from contract events...");
-        let events: any[] = await zkappWorkerClient.fetchEvents() as any[];
+        let events: any[] = (await zkappWorkerClient.fetchEvents()) as any[];
 
         let currentUserSolvedCount = 0;
 
         events.map((e) => {
-          if(e.solver === publicKeyBase58) currentUserSolvedCount++;
+          if (e.solver === publicKeyBase58) currentUserSolvedCount++;
         });
 
         setSolved({
@@ -120,8 +149,8 @@ export default function Home() {
         console.log("Getting zkApp state...");
         setDisplayText("Getting zkApp state...");
         await zkappWorkerClient.fetchAccount({ publicKey: zkappPublicKey });
-        const puzzleHash = await zkappWorkerClient.getPuzzleHash();
-        console.log(`Current state in zkApp: ${puzzleHash.toString()}`);
+        const puzzleHashes = await zkappWorkerClient.getPuzzleHashes();
+        console.log(`Current state in zkApp: ${puzzleHashes[0].toString()}`);
         setDisplayText("");
 
         console.log("Compiling zkApp...");
@@ -138,7 +167,7 @@ export default function Home() {
           publicKey,
           zkappPublicKey,
           accountExists,
-          puzzleHash,
+          puzzleHashes,
         });
       }
     })();
@@ -180,7 +209,12 @@ export default function Home() {
       publicKey: state.publicKey!,
     });
 
-    await state.zkappWorkerClient!.submitSolution({sender: state.publicKey!.toBase58(), puzzle, solution});
+    await state.zkappWorkerClient!.submitSolution({
+      sender: state.publicKey!.toBase58(),
+      puzzleRef: Number(selectedPuzzle),
+      puzzle,
+      solution,
+    });
 
     setDisplayText("Creating proof...");
     console.log("Creating proof...");
@@ -219,9 +253,9 @@ export default function Home() {
     await state.zkappWorkerClient!.fetchAccount({
       publicKey: state.zkappPublicKey!,
     });
-    const puzzleHash = await state.zkappWorkerClient!.getPuzzleHash();
-    setState({ ...state, puzzleHash });
-    console.log(`Current state in zkApp: ${puzzleHash.toString()}`);
+    const puzzleHashes = await state.zkappWorkerClient!.getPuzzleHashes();
+    setState({ ...state, puzzleHashes });
+    console.log(`Current state in zkApp: ${puzzleHashes[0].toString()}`);
     setDisplayText("");
   };
 
@@ -307,12 +341,22 @@ export default function Home() {
   }
 
   let solvedContent;
-  if(solved.isLoaded === true && solved.currentUser === 0) {
-    solvedContent = <>The puzzle has been solved {solved.total} times. BUT you haven't solved it yet.</>;
+  if (solved.isLoaded === true && solved.currentUser === 0) {
+    solvedContent = (
+      <>
+        The puzzle has been solved {solved.total} times. BUT you haven't solved
+        it yet.
+      </>
+    );
   }
 
-  if(solved.isLoaded === true && solved.currentUser > 0) {
-    solvedContent = <>The puzzle has been solved {solved.total} times. AND you are one of them!.</>;
+  if (solved.isLoaded === true && solved.currentUser > 0) {
+    solvedContent = (
+      <>
+        The puzzle has been solved {solved.total} times. AND you are one of
+        them!.
+      </>
+    );
   }
 
   return (
@@ -320,6 +364,24 @@ export default function Home() {
       <div className={styles.main} style={{ padding: 0 }}>
         <div className={styles.center} style={{ padding: 0 }}>
           <h2 style={{ margin: "1rem" }}>Mina Puzzles: Magic Squares</h2>
+          <div style={{ margin: "1rem" }}>
+            <span style={{ marginRight: "1.5rem" }}>
+              Choose Puzzle to solve:
+            </span>
+            <select
+              value={selectedPuzzle}
+              onChange={(e) => {
+                setSelectedPuzzle(Number(e.target.value));
+                setPuzzle(puzzles[Number(e.target.value)]);
+                setSolution(puzzles[Number(e.target.value)]);
+              }}
+            >
+              <option value="1">Puzzle 1</option>
+              <option value="2">Puzzle 2</option>
+              <option value="3">Puzzle 3</option>
+              <option value="4">Puzzle 4</option>
+            </select>
+          </div>
           <MagicSquaresTable
             puzzle={puzzle}
             editable

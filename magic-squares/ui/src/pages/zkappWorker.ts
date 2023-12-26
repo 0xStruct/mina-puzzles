@@ -90,9 +90,18 @@ const functions = {
     const publicKey = PublicKey.fromBase58(args.publicKey58);
     state.zkapp = new state.MagicSquaresZkApp!(publicKey);
   },
-  getPuzzleHash: async (args: {}) => {
-    const puzzleHash = await state.zkapp!.puzzleHash.get();
-    return JSON.stringify(puzzleHash.toJSON());
+  getPuzzleHashes: async (args: {}) => {
+    const puzzleHash1 = await state.zkapp!.puzzleHash1.get();
+    const puzzleHash2 = await state.zkapp!.puzzleHash2.get();
+    const puzzleHash3 = await state.zkapp!.puzzleHash3.get();
+    const puzzleHash4 = await state.zkapp!.puzzleHash4.get();
+
+    return JSON.stringify([
+      puzzleHash1.toJSON(),
+      puzzleHash2.toJSON(),
+      puzzleHash3.toJSON(),
+      puzzleHash4.toJSON()
+    ]);
   },
   // createUpdateTransaction: async (args: {}) => {
   //   const transaction = await Mina.transaction(() => {
@@ -102,14 +111,16 @@ const functions = {
   // },
   submitSolution: async (args: {
     sender: string;
+    puzzleRef: number;
     puzzle: any;
     solution: any;
   }) => {
-    const { sender, puzzle, solution } = args;
+    const { sender, puzzle, solution, puzzleRef } = args;
     const transaction = await Mina.transaction(
       PublicKey.fromBase58(sender),
       () => {
         state.zkapp!.submitSolution(
+          Field(Number(puzzleRef)),
           PuzzleStruct.from(puzzle),
           PuzzleStruct.from(solution)
         );
