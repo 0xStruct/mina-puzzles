@@ -1,11 +1,12 @@
 import { MagicSquaresZkApp, PuzzleStruct } from './MagicSquares';
-import { PrivateKey, PublicKey, Mina, AccountUpdate } from 'o1js';
+import { PrivateKey, PublicKey, Mina, AccountUpdate, Field } from 'o1js';
 
 describe('puzzle', () => {
   let zkApp: MagicSquaresZkApp,
     zkAppPrivateKey: PrivateKey,
     zkAppAddress: PublicKey,
     puzzle: number[][],
+    puzzles: number[][][],
     sender: PublicKey,
     senderKey: PrivateKey;
 
@@ -23,14 +24,12 @@ describe('puzzle', () => {
       [4, 6, 0, 20, 22],
       [10, 0, 19, 0, 3],
       [0, 18, 25, 2, 0],
-    ]
+    ];
+    puzzles = [puzzle, puzzle, puzzle, puzzle];
   });
 
   it('accepts a correct solution', async () => {
-    await deploy(zkApp, zkAppPrivateKey, puzzle, sender, senderKey);
-
-    let isSolved = zkApp.isSolved.get().toBoolean();
-    expect(isSolved).toBe(false);
+    await deploy(zkApp, zkAppPrivateKey, puzzles, sender, senderKey);
 
     let solution = [
       [17, 24, 1, 8, 15],
@@ -44,6 +43,7 @@ describe('puzzle', () => {
     let tx = await Mina.transaction(sender, () => {
       let zkApp = new MagicSquaresZkApp(zkAppAddress);
       zkApp.submitSolution(
+        Field(1),
         PuzzleStruct.from(puzzle),
         PuzzleStruct.from(solution!)
       );
@@ -51,12 +51,10 @@ describe('puzzle', () => {
     await tx.prove();
     await tx.sign([senderKey]).send();
 
-    isSolved = zkApp.isSolved.get().toBoolean();
-    expect(isSolved).toBe(true);
   });
 
   it('rejects an incorrect solution', async () => {
-    await deploy(zkApp, zkAppPrivateKey, puzzle, sender, senderKey);
+    await deploy(zkApp, zkAppPrivateKey, puzzles, sender, senderKey);
 
     let noSolution = [
       [1, 24, 1, 8, 1],
@@ -70,28 +68,26 @@ describe('puzzle', () => {
     await expect(async () => {
       let tx = await Mina.transaction(sender, () => {
         let zkApp = new MagicSquaresZkApp(zkAppAddress);
-        zkApp.submitSolution(PuzzleStruct.from(puzzle), PuzzleStruct.from(noSolution));
+        zkApp.submitSolution(Field(1), PuzzleStruct.from(puzzle), PuzzleStruct.from(noSolution));
       });
       await tx.prove();
       await tx.sign([senderKey]).send();
     }).rejects.toThrow(/unequal sums/);
 
-    let isSolved = zkApp.isSolved.get().toBoolean();
-    expect(isSolved).toBe(false);
   });
 });
 
 async function deploy(
   zkApp: MagicSquaresZkApp,
   zkAppPrivateKey: PrivateKey,
-  puzzle: number[][],
+  puzzles: number[][][],
   sender: PublicKey,
   senderKey: PrivateKey
 ) {
   let tx = await Mina.transaction(sender, () => {
     AccountUpdate.fundNewAccount(sender);
     zkApp.deploy();
-    zkApp.update(PuzzleStruct.from(puzzle));
+    zkApp.update(PuzzleStruct.from(puzzles[0]), PuzzleStruct.from(puzzles[1]), PuzzleStruct.from(puzzles[2]), PuzzleStruct.from(puzzles[3]));
   });
   await tx.prove();
   // this tx needs .sign(), because `deploy()` adds an account update that requires signature authorization

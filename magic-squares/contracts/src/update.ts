@@ -60,16 +60,40 @@ let feepayerAddress = feepayerKey.toPublicKey();
 let zkAppAddress = zkAppKey.toPublicKey();
 let zkApp = new MagicSquaresZkApp(zkAppAddress);
 
-const puzzle = [
+const puzzle1 = [
   [0, 24, 1, 8, 0],
   [23, 0, 7, 0, 16],
   [4, 6, 0, 20, 22],
   [10, 0, 19, 0, 3],
   [0, 18, 25, 2, 0],
 ];
+const puzzle2 = [
+  [17, 0, 1, 8, 15],
+  [23, 0, 7, 14, 16],
+  [4, 0, 13, 20, 22],
+  [10, 0, 19, 21, 3],
+  [11, 0, 25, 2, 9],
+];
+const puzzle3 = [
+  [17, 24, 1, 0, 15],
+  [23, 5, 7, 0, 16],
+  [4, 6, 13, 0, 22],
+  [10, 12, 19, 0, 3],
+  [11, 18, 25, 0, 9],
+];
+const puzzle4 = [
+  [17, 24, 1, 8, 15],
+  [0, 0, 0, 0, 0],
+  [4, 6, 13, 20, 22],
+  [10, 12, 19, 21, 3],
+  [11, 18, 25, 2, 9],
+];
 // note down the output for use in the UI
-console.log(JSON.stringify(puzzle));
-console.log(PuzzleStruct.from(puzzle).hash());
+console.log("puzzle1", JSON.stringify(puzzle1));
+console.log("puzzle2", JSON.stringify(puzzle2));
+console.log("puzzle3", JSON.stringify(puzzle3));
+console.log("puzzle4", JSON.stringify(puzzle4));
+//console.log(PuzzleStruct.from(puzzle1).hash());
 
 let sentTx;
 // compile the contract to create prover keys
@@ -78,12 +102,11 @@ await MagicSquaresZkApp.compile();
 try {
   // init
   await fetchAccount({ publicKey: zkAppAddress });
-  console.log('Is the puzzle solved?', zkApp.isSolved.get().toBoolean());
-  console.log('update puzzle hash...');
+  console.log('update puzzle hashes...');
 
   let tx = await Mina.transaction({ sender: feepayerAddress, fee }, () => {
     // zkApp.deploy(); should have been deployed earlier with `zk deploy`
-    zkApp.update(PuzzleStruct.from(puzzle));
+    zkApp.update(PuzzleStruct.from(puzzle1), PuzzleStruct.from(puzzle2), PuzzleStruct.from(puzzle3), PuzzleStruct.from(puzzle4));
   });
   await tx.prove();
   sentTx = await tx.sign([zkAppKey, feepayerKey]).send();

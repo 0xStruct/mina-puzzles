@@ -10,7 +10,7 @@
  * Run with node:     `$ node build/src/run.js`.
  */
 import { MagicSquaresZkApp, PuzzleStruct } from './MagicSquares.js';
-import { AccountUpdate, Mina, PrivateKey } from 'o1js';
+import { AccountUpdate, Mina, PrivateKey, Field } from 'o1js';
 
 // setup
 const Local = Mina.LocalBlockchain();
@@ -34,7 +34,7 @@ await MagicSquaresZkApp.compile();
 let tx = await Mina.transaction(sender, () => {
   AccountUpdate.fundNewAccount(sender);
   zkApp.deploy();
-  zkApp.update(PuzzleStruct.from(puzzle));
+  zkApp.update(PuzzleStruct.from(puzzle), PuzzleStruct.from(puzzle), PuzzleStruct.from(puzzle), PuzzleStruct.from(puzzle));
 });
 await tx.prove();
 /**
@@ -45,8 +45,6 @@ await tx.prove();
  * that's why we don't need `tx.sign()` for the later transactions.)
  */
 await tx.sign([zkAppPrivateKey, senderKey]).send();
-
-console.log('Is the puzzle solved?', zkApp.isSolved.get().toBoolean());
 
 let solution = [
   [17, 24, 1, 8, 15],
@@ -69,7 +67,7 @@ let noSolution = [
 console.log('Submitting wrong solution...');
 try {
   let tx = await Mina.transaction(sender, () => {
-    zkApp.submitSolution(PuzzleStruct.from(puzzle), PuzzleStruct.from(noSolution));
+    zkApp.submitSolution(Field(1), PuzzleStruct.from(puzzle), PuzzleStruct.from(noSolution));
   });
   await tx.prove();
   await tx.sign([senderKey]).send();
@@ -77,14 +75,10 @@ try {
   console.log('There was an error submitting the solution, as expected');
 }
 
-console.log('Is the puzzle solved?', zkApp.isSolved.get().toBoolean());
-
 // submit the actual solution
 console.log('Submitting solution...');
 tx = await Mina.transaction(sender, () => {
-  zkApp.submitSolution(PuzzleStruct.from(puzzle), PuzzleStruct.from(solution!));
+  zkApp.submitSolution(Field(1), PuzzleStruct.from(puzzle), PuzzleStruct.from(solution!));
 });
 await tx.prove();
 await tx.sign([senderKey]).send();
-
-console.log('Is the puzzle solved?', zkApp.isSolved.get().toBoolean());

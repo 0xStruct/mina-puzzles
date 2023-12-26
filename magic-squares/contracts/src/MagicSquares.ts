@@ -27,8 +27,10 @@ class PuzzleStruct extends Struct({
 }
 
 class MagicSquaresZkApp extends SmartContract {
-  @state(Field) puzzleHash = State<Field>();
-  @state(Bool) isSolved = State<Bool>();
+  @state(Field) puzzleHash1 = State<Field>();
+  @state(Field) puzzleHash2 = State<Field>();
+  @state(Field) puzzleHash3 = State<Field>();
+  @state(Field) puzzleHash4 = State<Field>();
 
   // contract events
   events = {
@@ -48,19 +50,20 @@ class MagicSquaresZkApp extends SmartContract {
     super.init();
   }
 
-  @method update(puzzleInstance: PuzzleStruct) {
-    this.puzzleHash.set(puzzleInstance.hash()); // to-do support multiple games
-    this.isSolved.set(Bool(false)); // to-do remove later
+  @method update(puzzleInstance1: PuzzleStruct, puzzleInstance2: PuzzleStruct, puzzleInstance3: PuzzleStruct, puzzleInstance4: PuzzleStruct) {
+    this.puzzleHash1.set(puzzleInstance1.hash());
+    this.puzzleHash2.set(puzzleInstance2.hash());
+    this.puzzleHash3.set(puzzleInstance3.hash());
+    this.puzzleHash4.set(puzzleInstance4.hash());
   }
 
   @method submitSolution(
+    puzzleRef: Field,
     puzzleInstance: PuzzleStruct,
     solutionInstance: PuzzleStruct
   ) {
     let puzzle = puzzleInstance.value;
     let solution = solutionInstance.value;
-
-    this.isSolved.set(Bool(false));
 
     // first, we check that the passed solution is a valid magic squares
     function getSum(array: Field[]) {
@@ -119,14 +122,23 @@ class MagicSquaresZkApp extends SmartContract {
     }
 
     // finally, we check that the puzzle is the one that was originally deployed
-    let puzzleHash = this.puzzleHash.getAndRequireEquals();
+    const whichPuzzle: Bool[] = [
+      puzzleRef.equals(Field(1)),
+      puzzleRef.equals(Field(2)),
+      puzzleRef.equals(Field(3)),
+      puzzleRef.equals(Field(4))
+    ];
+
+    const puzzleHash = Provable.switch(whichPuzzle, Field, [
+      this.puzzleHash1.getAndRequireEquals(),
+      this.puzzleHash2.getAndRequireEquals(),
+      this.puzzleHash3.getAndRequireEquals(),
+      this.puzzleHash4.getAndRequireEquals()
+    ]);
 
     puzzleInstance
       .hash()
       .assertEquals(puzzleHash, 'puzzle matches the one committed on-chain');
-
-    // all checks passed => the puzzle is solved!
-    this.isSolved.set(Bool(true));
 
     this.emitEvent('solved', {
       solver: this.sender,
