@@ -1,4 +1,13 @@
 {
   "version": 1,
-  "deployAliases": {}
+  "deployAliases": {
+    "suku": {
+      "url": "https://proxy.berkeley.minaexplorer.com/graphql",
+      "keyPath": "keys/suku.json",
+      "feepayerKeyPath": "/Users/apple/.cache/zkapp-cli/keys/feepayer.json",
+      "feepayerAlias": "feepayer",
+      "fee": "0.1",
+      "smartContract": "SudokuZkApp"
+    }
+  }
 }

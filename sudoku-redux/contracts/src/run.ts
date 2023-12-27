@@ -11,14 +11,14 @@
  */
 import { Sudoku, SudokuZkApp } from './sudoku.js';
 import { cloneSudoku, generateSudoku, solveSudoku } from './sudoku-lib.js';
-import { AccountUpdate, Mina, PrivateKey } from 'o1js';
+import { AccountUpdate, Mina, PrivateKey, Field } from 'o1js';
 
 // setup
 const Local = Mina.LocalBlockchain();
 Mina.setActiveInstance(Local);
 
 const { privateKey: senderKey, publicKey: sender } = Local.testAccounts[0];
-const sudoku = generateSudoku(0.5);
+const sudokus = [generateSudoku(0.1), generateSudoku(0.2), generateSudoku(0.3), generateSudoku(0.4)];
 const zkAppPrivateKey = PrivateKey.random();
 const zkAppAddress = zkAppPrivateKey.toPublicKey();
 // create an instance of the smart contract
@@ -29,7 +29,7 @@ await SudokuZkApp.compile();
 let tx = await Mina.transaction(sender, () => {
   AccountUpdate.fundNewAccount(sender);
   zkApp.deploy();
-  zkApp.update(Sudoku.from(sudoku));
+  zkApp.update(Sudoku.from(sudokus[0]), Sudoku.from(sudokus[1]), Sudoku.from(sudokus[2]), Sudoku.from(sudokus[3]));
 });
 await tx.prove();
 /**
@@ -41,9 +41,7 @@ await tx.prove();
  */
 await tx.sign([zkAppPrivateKey, senderKey]).send();
 
-console.log('Is the sudoku solved?', zkApp.isSolved.get().toBoolean());
-
-let solution = solveSudoku(sudoku);
+let solution = solveSudoku(sudokus[0]);
 if (solution === undefined) throw Error('cannot happen');
 
 // submit a wrong solution
@@ -53,7 +51,7 @@ noSolution[0][0] = (noSolution[0][0] % 9) + 1;
 console.log('Submitting wrong solution...');
 try {
   let tx = await Mina.transaction(sender, () => {
-    zkApp.submitSolution(Sudoku.from(sudoku), Sudoku.from(noSolution));
+    zkApp.submitSolution(Field(1), Sudoku.from(sudokus[0]), Sudoku.from(noSolution));
   });
   await tx.prove();
   await tx.sign([senderKey]).send();
@@ -61,14 +59,10 @@ try {
   console.log('There was an error submitting the solution, as expected');
 }
 
-console.log('Is the sudoku solved?', zkApp.isSolved.get().toBoolean());
-
 // submit the actual solution
 console.log('Submitting solution...');
 tx = await Mina.transaction(sender, () => {
-  zkApp.submitSolution(Sudoku.from(sudoku), Sudoku.from(solution!));
+  zkApp.submitSolution(Field(1), Sudoku.from(sudokus[0]), Sudoku.from(solution!));
 });
 await tx.prove();
 await tx.sign([senderKey]).send();
-
-console.log('Is the sudoku solved?', zkApp.isSolved.get().toBoolean());

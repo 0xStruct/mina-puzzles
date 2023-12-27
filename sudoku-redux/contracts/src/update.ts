@@ -61,9 +61,10 @@ let feepayerAddress = feepayerKey.toPublicKey();
 let zkAppAddress = zkAppKey.toPublicKey();
 let zkApp = new SudokuZkApp(zkAppAddress);
 
-const sudoku = generateSudoku(0.1);
+const sudokus = [generateSudoku(0.1), generateSudoku(0.2), generateSudoku(0.3), generateSudoku(0.4)];
 // note down the output for use in the UI
-console.log(JSON.stringify(sudoku));
+console.log("4 sudokus generated. note it down for use in UI");
+console.log(JSON.stringify(sudokus));
 
 let sentTx;
 // compile the contract to create prover keys
@@ -73,12 +74,11 @@ try {
   // init
   console.log(zkAppAddress);
   await fetchAccount({ publicKey: zkAppAddress });
-  console.log('Is the sudoku solved?', zkApp.isSolved.get().toBoolean());
-  console.log('update sudoku hash...');
+  console.log('update sudoku hashes...');
 
   let tx = await Mina.transaction({ sender: feepayerAddress, fee }, () => {
     // zkApp.deploy(); should have been deployed earlier with `zk deploy`
-    zkApp.update(Sudoku.from(sudoku));
+    zkApp.update(Sudoku.from(sudokus[0]), Sudoku.from(sudokus[1]), Sudoku.from(sudokus[2]), Sudoku.from(sudokus[3]));
   });
   await tx.prove();
   sentTx = await tx.sign([zkAppKey, feepayerKey]).send();

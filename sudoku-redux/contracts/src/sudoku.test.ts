@@ -1,12 +1,12 @@
 import { Sudoku, SudokuZkApp } from './sudoku';
 import { cloneSudoku, generateSudoku, solveSudoku } from './sudoku-lib';
-import { PrivateKey, PublicKey, Mina, AccountUpdate } from 'o1js';
+import { PrivateKey, PublicKey, Mina, AccountUpdate, Field } from 'o1js';
 
 describe('sudoku', () => {
   let zkApp: SudokuZkApp,
     zkAppPrivateKey: PrivateKey,
     zkAppAddress: PublicKey,
-    sudoku: number[][],
+    sudokus: number[][][],
     sender: PublicKey,
     senderKey: PrivateKey;
 
@@ -18,32 +18,26 @@ describe('sudoku', () => {
     zkAppPrivateKey = PrivateKey.random();
     zkAppAddress = zkAppPrivateKey.toPublicKey();
     zkApp = new SudokuZkApp(zkAppAddress);
-    sudoku = generateSudoku(0.5);
+    sudokus = [generateSudoku(0.1), generateSudoku(0.2), generateSudoku(0.3), generateSudoku(0.4)];
   });
 
   it('accepts a correct solution', async () => {
-    await deploy(zkApp, zkAppPrivateKey, sudoku, sender, senderKey);
+    await deploy(zkApp, zkAppPrivateKey, sudokus, sender, senderKey);
 
-    let isSolved = zkApp.isSolved.get().toBoolean();
-    expect(isSolved).toBe(false);
-
-    let solution = solveSudoku(sudoku);
+    let solution = solveSudoku(sudokus[0]);
     if (solution === undefined) throw Error('cannot happen');
     let tx = await Mina.transaction(sender, () => {
       let zkApp = new SudokuZkApp(zkAppAddress);
-      zkApp.submitSolution(Sudoku.from(sudoku), Sudoku.from(solution!));
+      zkApp.submitSolution(Field(1), Sudoku.from(sudokus[0]), Sudoku.from(solution!));
     });
     await tx.prove();
     await tx.sign([senderKey]).send();
-
-    isSolved = zkApp.isSolved.get().toBoolean();
-    expect(isSolved).toBe(true);
   });
 
   it('rejects an incorrect solution', async () => {
-    await deploy(zkApp, zkAppPrivateKey, sudoku, sender, senderKey);
+    await deploy(zkApp, zkAppPrivateKey, sudokus, sender, senderKey);
 
-    let solution = solveSudoku(sudoku);
+    let solution = solveSudoku(sudokus[0]);
     if (solution === undefined) throw Error('cannot happen');
 
     let noSolution = cloneSudoku(solution);
@@ -52,28 +46,25 @@ describe('sudoku', () => {
     await expect(async () => {
       let tx = await Mina.transaction(sender, () => {
         let zkApp = new SudokuZkApp(zkAppAddress);
-        zkApp.submitSolution(Sudoku.from(sudoku), Sudoku.from(noSolution));
+        zkApp.submitSolution(Field(1), Sudoku.from(sudokus[0]), Sudoku.from(noSolution));
       });
       await tx.prove();
       await tx.sign([senderKey]).send();
     }).rejects.toThrow(/array contains the numbers 1...9/);
-
-    let isSolved = zkApp.isSolved.get().toBoolean();
-    expect(isSolved).toBe(false);
   });
 });
 
 async function deploy(
   zkApp: SudokuZkApp,
   zkAppPrivateKey: PrivateKey,
-  sudoku: number[][],
+  sudokus: number[][][],
   sender: PublicKey,
   senderKey: PrivateKey
 ) {
   let tx = await Mina.transaction(sender, () => {
     AccountUpdate.fundNewAccount(sender);
     zkApp.deploy();
-    zkApp.update(Sudoku.from(sudoku));
+    zkApp.update(Sudoku.from(sudokus[0]), Sudoku.from(sudokus[1]), Sudoku.from(sudokus[2]), Sudoku.from(sudokus[3]));
   });
   await tx.prove();
   // this tx needs .sign(), because `deploy()` adds an account update that requires signature authorization

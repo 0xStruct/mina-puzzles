@@ -27,14 +27,16 @@ class Sudoku extends Struct({
 }
 
 class SudokuZkApp extends SmartContract {
-  @state(Field) sudokuHash = State<Field>();
-  @state(Bool) isSolved = State<Bool>();
+  @state(Field) sudokuHash1 = State<Field>();
+  @state(Field) sudokuHash2 = State<Field>();
+  @state(Field) sudokuHash3 = State<Field>();
+  @state(Field) sudokuHash4 = State<Field>();
 
   // contract events
   events = {
     "solved": provablePure({
       solver: PublicKey,
-      puzzleHash: Field
+      sudokuHash: Field
     }),
   };
 
@@ -48,16 +50,16 @@ class SudokuZkApp extends SmartContract {
     super.init();
   }
 
-  @method update(sudokuInstance: Sudoku) {
-    this.sudokuHash.set(sudokuInstance.hash()); // to-do support multiple games
-    this.isSolved.set(Bool(false)); // to-do remove later
+  @method update(sudokuInstance1: Sudoku, sudokuInstance2: Sudoku, sudokuInstance3: Sudoku, sudokuInstance4: Sudoku) {
+    this.sudokuHash1.set(sudokuInstance1.hash()); 
+    this.sudokuHash2.set(sudokuInstance2.hash()); 
+    this.sudokuHash3.set(sudokuInstance3.hash()); 
+    this.sudokuHash4.set(sudokuInstance4.hash()); 
   }
 
-  @method submitSolution(sudokuInstance: Sudoku, solutionInstance: Sudoku) {
+  @method submitSolution(sudokuRef: Field, sudokuInstance: Sudoku, solutionInstance: Sudoku) {
     let sudoku = sudokuInstance.value;
     let solution = solutionInstance.value;
-
-    this.isSolved.set(Bool(false));
 
     // first, we check that the passed solution is a valid sudoku
 
@@ -106,20 +108,29 @@ class SudokuZkApp extends SmartContract {
     }
 
     // finally, we check that the sudoku is the one that was originally deployed
-    let sudokuHash = this.sudokuHash.getAndRequireEquals();
+    const whichSudoku: Bool[] = [
+      sudokuRef.equals(Field(1)),
+      sudokuRef.equals(Field(2)),
+      sudokuRef.equals(Field(3)),
+      sudokuRef.equals(Field(4))
+    ];
+
+    const sudokuHash = Provable.switch(whichSudoku, Field, [
+      this.sudokuHash1.getAndRequireEquals(),
+      this.sudokuHash2.getAndRequireEquals(),
+      this.sudokuHash3.getAndRequireEquals(),
+      this.sudokuHash4.getAndRequireEquals()
+    ]);
 
     sudokuInstance
       .hash()
       .assertEquals(sudokuHash, 'sudoku matches the one committed on-chain');
 
-    // all checks passed => the sudoku is solved!
-    this.isSolved.set(Bool(true));
-
     // emit event
     this.emitEvent(
       'solved', {
       solver: this.sender,
-      puzzleHash: sudokuHash,
+      sudokuHash: sudokuHash,
     });
   }
 }
