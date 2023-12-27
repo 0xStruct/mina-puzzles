@@ -42,17 +42,23 @@ export default class ZkappWorkerClient {
     return this._call("fetchEvents", {});
   }
 
-  async getSudokuHash(): Promise<Field> {
-    const result = await this._call("getSudokuHash", {});
-    return Field.fromJSON(JSON.parse(result as string));
+  async getSudokuHashes(): Promise<Field[]> {
+    const result = await this._call("getSudokuHashes", {});
+    const sudokuHashes = await JSON.parse(result as string);
+    return [
+      Field.fromJSON(sudokuHashes[0]),
+      Field.fromJSON(sudokuHashes[1]),
+      Field.fromJSON(sudokuHashes[2]),
+      Field.fromJSON(sudokuHashes[3])
+    ];
   }
 
   // createUpdateTransaction() {
   //   return this._call('createUpdateTransaction', {});
   // }
 
-  submitSolution({sender, sudoku, solution}: {sender: string, sudoku: any; solution: any}) {
-    return this._call('submitSolution', { sender, sudoku, solution});
+  submitSolution({sender, sudokuRef, sudoku, solution}: {sender: string, sudokuRef: number; sudoku: any; solution: any}) {
+    return this._call('submitSolution', { sender, sudokuRef, sudoku, solution});
   }
 
   proveUpdateTransaction() {

@@ -15,7 +15,7 @@ export default function Home() {
     hasWallet: null as null | boolean,
     hasBeenSetup: false,
     accountExists: false,
-    sudokuHash: null as null | Field,
+    sudokuHashes: null as null | Field[],
     publicKey: null as null | PublicKey,
     zkappPublicKey: null as null | PublicKey,
     creatingTransaction: false,
@@ -27,20 +27,22 @@ export default function Home() {
     isLoaded: false,
   });
 
-  let sudoku = [
-    [0, 0, 0, 0, 0, 0, 4, 5, 0],
-    [6, 2, 0, 0, 0, 9, 8, 0, 7],
-    [0, 0, 8, 0, 3, 2, 0, 9, 6],
-    [2, 0, 0, 0, 6, 5, 0, 4, 1],
-    [9, 1, 0, 7, 0, 0, 6, 0, 0],
-    [0, 0, 6, 4, 0, 1, 7, 0, 0],
-    [7, 0, 9, 3, 0, 6, 0, 0, 8],
-    [5, 8, 0, 9, 1, 0, 3, 6, 4],
-    [1, 6, 0, 0, 0, 4, 0, 0, 0],
-  ];
-  let [solution, setSolution] = useState(sudoku);
+  const [selectedSudoku, setSelectedSudoku] = useState(1);
 
-  let bravo = solveSudoku(sudoku)!;
+  // get sudokus by first updating the contract
+  // refer to contracts/update.ts
+  // npm run build
+  // node ./build/src/update.js
+  // in console log sudokus set for contract states will be logged
+  let sudokus = [
+    [[]], // empty puzzle for index 0
+    [[9,1,7,8,0,2,4,5,3],[3,5,2,7,1,4,6,9,8],[6,8,4,3,5,9,2,1,7],[8,7,6,5,4,1,9,3,2],[5,2,1,6,9,3,7,8,0],[4,9,3,2,0,8,1,0,5],[1,6,8,4,0,7,0,2,9],[2,4,9,1,8,5,0,7,6],[7,0,5,0,2,6,8,4,1]],[[0,9,5,2,4,8,0,7,1],[0,4,7,6,0,1,3,9,8],[6,1,8,3,7,9,2,5,4],[1,5,2,7,0,6,8,4,3],[7,8,3,4,0,5,1,6,9],[0,0,9,8,1,3,0,2,5],[5,0,4,0,8,2,9,0,6],[9,3,0,5,0,0,0,8,2],[0,0,6,9,0,0,5,1,7]],[[0,1,0,2,4,5,8,0,3],[9,5,0,6,3,1,4,2,7],[2,3,0,8,0,0,1,5,6],[1,6,2,4,0,3,0,0,8],[8,7,5,0,2,9,6,3,0],[0,4,9,7,0,6,2,1,5],[5,2,1,3,6,8,0,0,9],[0,8,3,9,7,2,5,6,0],[0,0,0,0,1,4,3,8,2]],[[1,3,0,0,0,0,0,0,0],[4,0,9,0,3,2,0,0,0],[5,6,2,0,7,4,9,8,3],[0,0,4,2,0,9,5,0,8],[6,0,0,8,4,1,0,9,2],[9,2,0,7,0,3,0,6,1],[0,9,0,0,1,0,8,4,5],[3,7,0,4,0,8,6,0,9],[8,0,1,6,0,5,3,0,7]]
+  ];
+
+  let [sudoku, setSudoku] = useState(sudokus[1]);
+  let [solution, setSolution] = useState(sudokus[1]);
+
+  let bravo = solveSudoku(sudokus[1])!;
   // console.log("bravo", bravo);
 
   const [displayText, setDisplayText] = useState("");
@@ -101,12 +103,12 @@ export default function Home() {
         // fetching events
         console.log("fetching events");
         setDisplayText("Getting puzzle statistics from contract events...");
-        let events: any[] = await zkappWorkerClient.fetchEvents() as any[];
+        let events: any[] = (await zkappWorkerClient.fetchEvents()) as any[];
 
         let currentUserSolvedCount = 0;
 
         events.map((e) => {
-          if(e.solver === publicKeyBase58) currentUserSolvedCount++;
+          if (e.solver === publicKeyBase58) currentUserSolvedCount++;
         });
 
         setSolved({
@@ -119,8 +121,8 @@ export default function Home() {
         console.log("Getting zkApp state...");
         setDisplayText("Getting zkApp state...");
         await zkappWorkerClient.fetchAccount({ publicKey: zkappPublicKey });
-        const sudokuHash = await zkappWorkerClient.getSudokuHash();
-        console.log(`Current state in zkApp: ${sudokuHash.toString()}`);
+        const sudokuHashes = await zkappWorkerClient.getSudokuHashes();
+        console.log(`Current state in zkApp: ${sudokuHashes[0].toString()}`);
         setDisplayText("");
 
         console.log("Compiling zkApp...");
@@ -137,7 +139,7 @@ export default function Home() {
           publicKey,
           zkappPublicKey,
           accountExists,
-          sudokuHash,
+          sudokuHashes,
         });
       }
     })();
@@ -179,7 +181,12 @@ export default function Home() {
       publicKey: state.publicKey!,
     });
 
-    await state.zkappWorkerClient!.submitSolution({sender: state.publicKey!.toBase58(), sudoku, solution});
+    await state.zkappWorkerClient!.submitSolution({
+      sender: state.publicKey!.toBase58(),
+      sudokuRef: Number(selectedSudoku),
+      sudoku,
+      solution,
+    });
 
     setDisplayText("Creating proof...");
     console.log("Creating proof...");
@@ -218,9 +225,9 @@ export default function Home() {
     await state.zkappWorkerClient!.fetchAccount({
       publicKey: state.zkappPublicKey!,
     });
-    const sudokuHash = await state.zkappWorkerClient!.getSudokuHash();
-    setState({ ...state, sudokuHash });
-    console.log(`Current state in zkApp: ${sudokuHash.toString()}`);
+    const sudokuHashes = await state.zkappWorkerClient!.getSudokuHashes();
+    setState({ ...state, sudokuHashes });
+    console.log(`Current state in zkApp: ${sudokuHashes[0].toString()}`);
     setDisplayText("");
   };
 
@@ -306,12 +313,22 @@ export default function Home() {
   }
 
   let solvedContent;
-  if(solved.isLoaded === true && solved.currentUser === 0) {
-    solvedContent = <>The puzzle has been solved {solved.total} times. BUT you haven't solved it yet.</>;
+  if (solved.isLoaded === true && solved.currentUser === 0) {
+    solvedContent = (
+      <>
+        The sudoku has been solved {solved.total} times. BUT you haven't solved
+        it yet.
+      </>
+    );
   }
 
-  if(solved.isLoaded === true && solved.currentUser > 0) {
-    solvedContent = <>The puzzle has been solved {solved.total} times. AND you are one of them!.</>;
+  if (solved.isLoaded === true && solved.currentUser > 0) {
+    solvedContent = (
+      <>
+        The sudoku has been solved {solved.total} times. AND you are one of
+        them!.
+      </>
+    );
   }
 
   return (
@@ -319,6 +336,24 @@ export default function Home() {
       <div className={styles.main} style={{ padding: 0 }}>
         <div className={styles.center} style={{ padding: 0 }}>
           <h2 style={{ margin: "1rem" }}>Mina Puzzles: Sudoku Redux</h2>
+          <div style={{ margin: "1rem" }}>
+            <span style={{ marginRight: "1.5rem" }}>
+              Choose Sudoku to solve:
+            </span>
+            <select
+              value={selectedSudoku}
+              onChange={(e) => {
+                setSelectedSudoku(Number(e.target.value));
+                setSudoku(sudokus[Number(e.target.value)]);
+                setSolution(sudokus[Number(e.target.value)]);
+              }}
+            >
+              <option value="1">Sudoku 1</option>
+              <option value="2">Sudoku 2</option>
+              <option value="3">Sudoku 3</option>
+              <option value="4">Sudoku 4</option>
+            </select>
+          </div>
           <SudokuTable
             sudoku={sudoku}
             editable

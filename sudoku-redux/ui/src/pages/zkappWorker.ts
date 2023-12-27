@@ -82,10 +82,11 @@ const functions = {
 
     let events: any[] = [];
     minaEvents.map((e) => {
-      // @ts-ignore
       events.push({
+        // @ts-ignore
         solver: e.event.data.solver.toBase58(),
-        puzzleHash: e.event.data.puzzleHash.toJSON(),
+        // @ts-ignore
+        sudokuHash: e.event.data.sudokuHash.toJSON(),
       });
     });
 
@@ -95,9 +96,18 @@ const functions = {
     const publicKey = PublicKey.fromBase58(args.publicKey58);
     state.zkapp = new state.SudokuZkApp!(publicKey);
   },
-  getSudokuHash: async (args: {}) => {
-    const sudokuHash = await state.zkapp!.sudokuHash.get();
-    return JSON.stringify(sudokuHash.toJSON());
+  getSudokuHashes: async (args: {}) => {
+    const sudokuHash1 = await state.zkapp!.sudokuHash1.get();
+    const sudokuHash2 = await state.zkapp!.sudokuHash2.get();
+    const sudokuHash3 = await state.zkapp!.sudokuHash3.get();
+    const sudokuHash4 = await state.zkapp!.sudokuHash4.get();
+
+    return JSON.stringify([
+      sudokuHash1.toJSON(),
+      sudokuHash2.toJSON(),
+      sudokuHash3.toJSON(),
+      sudokuHash4.toJSON()
+    ]);
   },
   // createUpdateTransaction: async (args: {}) => {
   //   const transaction = await Mina.transaction(() => {
@@ -107,14 +117,15 @@ const functions = {
   // },
   submitSolution: async (args: {
     sender: string;
+    sudokuRef: number;
     sudoku: any;
     solution: any;
   }) => {
-    const { sender, sudoku, solution } = args;
+    const { sender, sudokuRef, sudoku, solution } = args;
     const transaction = await Mina.transaction(
       PublicKey.fromBase58(sender),
       () => {
-        state.zkapp!.submitSolution(Sudoku.from(sudoku), Sudoku.from(solution));
+        state.zkapp!.submitSolution(Field(Number(sudokuRef)), Sudoku.from(sudoku), Sudoku.from(solution));
       }
     );
     state.transaction = transaction;
