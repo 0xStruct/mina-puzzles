@@ -138,6 +138,7 @@ It is on my mind to make this into a Mina puzzle starter kit.
 
 Video says a million words. Lots of videos would be used to document my learning journey so that others can easily referenced to it.
 
-- Detailed code walkthrough with video of each step
-	- From `git clone` to deploying contract, and launching the UI site
+- Detailed code walkthrough step-by-step with video
+	- From `git clone` to deploying contract on Mina, and launching the UI site on Vercel
+    - https://wind-radish-f93.notion.site/Mina-Puzzle-detailed-code-walkthrough-with-video-b7d03a0c7d1c4251b0b56371cd82aa5a
 - Demo videos of games
