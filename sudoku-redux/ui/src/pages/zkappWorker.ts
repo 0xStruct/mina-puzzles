@@ -14,7 +14,7 @@ type Transaction = Awaited<ReturnType<typeof Mina.transaction>>;
 
 // ---------------------------------------------------------------------------------------
 
-import type { SudokuZkApp } from "../../../contracts/src/sudoku";
+import type { SudokuZkApp } from "../contracts/sudoku";
 
 type MinaEvent = {
   type: string;
@@ -64,7 +64,7 @@ const functions = {
   },
   loadContract: async (args: {}) => {
     const { SudokuZkApp } = await import(
-      "../../../contracts/build/src/sudoku.js"
+      "../contracts/sudoku"
     );
     state.SudokuZkApp = SudokuZkApp;
   },

@@ -42,7 +42,16 @@ export default function Home() {
   // avatars.push(avatarIDs);
 
   // run above commented out code to generate arrays
-  const avatars = [[5046,92529,40002,77136,83175,46103,76468,37908,18344,74040],[49295,46455,21944,7721,34939,91094,23783,25872,48955,15949],[25611,6133,55750,69671,31887,20987,90734,84322,13760,81404],[83951,73058,84898,35512,87879,53402,31433,62706,51586,49258],[75239,37183,91251,42430,13000,11757,11772,84107,18859,56570],[17268,14138,49405,12079,85214,31575,73369,68595,12215,7981],[48211,13740,94356,24887,97604,73976,66301,13890,41333,59972],[35736,86334,45192,92419,62818,45187,14079,58392,3169,63474]];
+  const avatars = [
+    [5046, 92529, 40002, 77136, 83175, 46103, 76468, 37908, 18344, 74040],
+    [49295, 46455, 21944, 7721, 34939, 91094, 23783, 25872, 48955, 15949],
+    [25611, 6133, 55750, 69671, 31887, 20987, 90734, 84322, 13760, 81404],
+    [83951, 73058, 84898, 35512, 87879, 53402, 31433, 62706, 51586, 49258],
+    [75239, 37183, 91251, 42430, 13000, 11757, 11772, 84107, 18859, 56570],
+    [17268, 14138, 49405, 12079, 85214, 31575, 73369, 68595, 12215, 7981],
+    [48211, 13740, 94356, 24887, 97604, 73976, 66301, 13890, 41333, 59972],
+    [35736, 86334, 45192, 92419, 62818, 45187, 14079, 58392, 3169, 63474],
+  ];
 
   let [solution, setSolution] = useState(0);
 
@@ -164,7 +173,10 @@ export default function Home() {
       publicKey: state.publicKey!,
     });
 
-    await state.zkappWorkerClient!.submitSolution({sender: state.publicKey!.toBase58(), solution});
+    await state.zkappWorkerClient!.submitSolution({
+      sender: state.publicKey!.toBase58(),
+      solution,
+    });
 
     setDisplayText("Creating proof...");
     console.log("Creating proof...");
@@ -295,9 +307,66 @@ export default function Home() {
           <h2 style={{ margin: "1rem" }}>Mina Puzzles: Where is Mina?</h2>
           <div style={{ display: "flex" }}>
             <div>
-              <svg viewBox="0 0 36 36" fill="none" role="img" xmlns="http://www.w3.org/2000/svg" width="80" height="80"><mask id=":r7:" maskUnits="userSpaceOnUse" x="0" y="0" width="36" height="36"><rect width="36" height="36" fill="#FFFFFF"></rect></mask><g mask="url(#:r7:)"><rect width="36" height="36" fill="#fbe5ac"></rect><rect x="0" y="0" width="36" height="36" transform="translate(8 8) rotate(78 18 18) scale(1)" fill="#a2bc97" rx="6"></rect><g transform="translate(4 4) rotate(-8 18 18)"><path d="M13,19 a1,0.75 0 0,0 10,0" fill="#000000"></path><rect x="11" y="14" width="1.5" height="2" rx="1" stroke="none" fill="#000000"></rect><rect x="23" y="14" width="1.5" height="2" rx="1" stroke="none" fill="#000000"></rect></g></g></svg>
+              <svg
+                viewBox="0 0 36 36"
+                fill="none"
+                role="img"
+                xmlns="http://www.w3.org/2000/svg"
+                width="80"
+                height="80"
+              >
+                <mask
+                  id=":r7:"
+                  maskUnits="userSpaceOnUse"
+                  x="0"
+                  y="0"
+                  width="36"
+                  height="36"
+                >
+                  <rect width="36" height="36" fill="#FFFFFF"></rect>
+                </mask>
+                <g mask="url(#:r7:)">
+                  <rect width="36" height="36" fill="#fbe5ac"></rect>
+                  <rect
+                    x="0"
+                    y="0"
+                    width="36"
+                    height="36"
+                    transform="translate(8 8) rotate(78 18 18) scale(1)"
+                    fill="#a2bc97"
+                    rx="6"
+                  ></rect>
+                  <g transform="translate(4 4) rotate(-8 18 18)">
+                    <path d="M13,19 a1,0.75 0 0,0 10,0" fill="#000000"></path>
+                    <rect
+                      x="11"
+                      y="14"
+                      width="1.5"
+                      height="2"
+                      rx="1"
+                      stroke="none"
+                      fill="#000000"
+                    ></rect>
+                    <rect
+                      x="23"
+                      y="14"
+                      width="1.5"
+                      height="2"
+                      rx="1"
+                      stroke="none"
+                      fill="#000000"
+                    ></rect>
+                  </g>
+                </g>
+              </svg>
             </div>
-            <div style={{ padding: "4px", paddingTop: "10px", fontSize: "1.2rem" }}>← This is Mina!<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Find it quick!</div>
+            <div
+              style={{ padding: "4px", paddingTop: "12px", fontSize: "1.2rem" }}
+            >
+              ⬅️ This is Mina!
+              <br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;👀 Find it quick!
+            </div>
           </div>
           <hr />
           <Avatars

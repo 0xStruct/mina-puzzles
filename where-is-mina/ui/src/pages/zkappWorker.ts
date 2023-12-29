@@ -13,7 +13,7 @@ type Transaction = Awaited<ReturnType<typeof Mina.transaction>>;
 
 // ---------------------------------------------------------------------------------------
 
-import type { WhereZkApp } from "../../../contracts/src/Where";
+import type { WhereZkApp } from "../contracts/Where";
 
 const state = {
   WhereZkApp: null as null | typeof WhereZkApp,
@@ -44,7 +44,7 @@ const functions = {
   },
   loadContract: async (args: {}) => {
     const { WhereZkApp } = await import(
-      "../../../contracts/build/src/Where.js"
+      "../contracts/Where"
     );
     state.WhereZkApp = WhereZkApp;
   },

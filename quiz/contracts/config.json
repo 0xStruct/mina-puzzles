@@ -1,13 +1,13 @@
 {
   "version": 1,
   "deployAliases": {
-    "magic": {
+    "quiz": {
       "url": "https://proxy.berkeley.minaexplorer.com/graphql",
-      "keyPath": "keys/magic.json",
+      "keyPath": "keys/quiz.json",
       "feepayerKeyPath": "/Users/apple/.cache/zkapp-cli/keys/feepayer.json",
       "feepayerAlias": "feepayer",
       "fee": "0.1",
-      "smartContract": "MagicSquaresZkApp"
+      "smartContract": "QuizZkApp"
     }
   }
 }

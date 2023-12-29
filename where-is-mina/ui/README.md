@@ -21,7 +21,7 @@ You can start editing the page by modifying `pages/index.page.tsx`. The page aut
 
 ## About UI
 
-This is built to work with where-is-mina contract. UI is built with reference to o1js tutorial.
+This is built to work with quiz contract. UI is built with reference to o1js tutorial.
 Attention is built to allow smooth UX, so that game is playable while setup and compile are done in the background.
 
 Players can start solving their puzzles without waiting.

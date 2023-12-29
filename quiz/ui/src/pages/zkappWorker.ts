@@ -13,7 +13,7 @@ type Transaction = Awaited<ReturnType<typeof Mina.transaction>>;
 
 // ---------------------------------------------------------------------------------------
 
-import type { QuizZkApp } from "../../../contracts/src/Quiz";
+import type { QuizZkApp } from "../contracts/Quiz";
 
 const state = {
   QuizZkApp: null as null | typeof QuizZkApp,
@@ -44,7 +44,7 @@ const functions = {
   },
   loadContract: async (args: {}) => {
     const { QuizZkApp } = await import(
-      "../../../contracts/build/src/Quiz.js"
+      "../contracts/Quiz"
     );
     state.QuizZkApp = QuizZkApp;
   },

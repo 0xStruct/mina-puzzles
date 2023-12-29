@@ -4,7 +4,7 @@ import ZkappWorkerClient from "./zkappWorkerClient";
 import { PublicKey, Field } from "o1js";
 import SudokuTable from "../components/SudokuTable";
 import styles from "../styles/Home.module.css";
-import { solveSudoku } from "../../../contracts/build/src/sudoku-lib";
+import { solveSudoku } from "../contracts/sudoku-lib";
 
 let transactionFee = 0.1;
 const ZKAPP_ADDRESS = process.env.NEXT_PUBLIC_ZKAPP_ADDRESS;

@@ -42,8 +42,8 @@ const nextConfig = {
    * The 'ghp-postbuild.js' script in this project prepends the repo name to asset urls in the built css files
    * after running 'npm run deploy'.
    */
-  basePath: process.env.NODE_ENV === 'production' ? '/04-zkapp-browser-ui' : '', // update basePath if you change your repo name
-  assetPrefix: process.env.NODE_ENV === 'production' ? '/04-zkapp-browser-ui' : '' // update assetPrefix if you change your repo name. 
+  basePath: process.env.NODE_ENV === 'production' ? '' : '', // update basePath if you change your repo name
+  assetPrefix: process.env.NODE_ENV === 'production' ? '' : '' // update assetPrefix if you change your repo name. 
 };
 
 module.exports = nextConfig;

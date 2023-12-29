@@ -15,7 +15,7 @@ type Transaction = Awaited<ReturnType<typeof Mina.transaction>>;
 
 // ---------------------------------------------------------------------------------------
 
-import type { MagicSquaresZkApp } from "../../../contracts/src/MagicSquares";
+import type { MagicSquaresZkApp } from "../contracts/MagicSquares";
 
 type MinaEvent = {
   type: string;
@@ -64,7 +64,7 @@ const functions = {
   },
   loadContract: async (args: {}) => {
     const { MagicSquaresZkApp } = await import(
-      "../../../contracts/build/src/MagicSquares.js"
+      "../contracts/MagicSquares"
     );
     state.MagicSquaresZkApp = MagicSquaresZkApp;
   },
