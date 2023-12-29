@@ -128,24 +128,6 @@ export default function Home() {
 
         await zkappWorkerClient.initZkappInstance(zkappPublicKey);
 
-        // fetching events
-        console.log("fetching events");
-        setDisplayText("Getting puzzle statistics from contract events...");
-        let events: any[] = (await zkappWorkerClient.fetchEvents()) as any[];
-
-        let currentUserSolvedCount = 0;
-
-        events.map((e) => {
-          if (e.solver === publicKeyBase58) currentUserSolvedCount++;
-        });
-
-        setSolved({
-          total: events.length,
-          currentUser: currentUserSolvedCount,
-          isLoaded: true,
-        });
-        setDisplayText("");
-
         console.log("Getting zkApp state...");
         setDisplayText("Getting zkApp state...");
         await zkappWorkerClient.fetchAccount({ publicKey: zkappPublicKey });
@@ -178,6 +160,8 @@ export default function Home() {
 
   useEffect(() => {
     (async () => {
+      await fetchEvents();
+
       if (state.hasBeenSetup && !state.accountExists) {
         for (;;) {
           setDisplayText("Checking if fee payer account exists...");
@@ -241,6 +225,42 @@ export default function Home() {
     setDisplayText(transactionLink);
 
     setState({ ...state, creatingTransaction: false });
+  };
+
+  const fetchEvents = async () => {
+    if (state.hasBeenSetup) {
+      setSolved({
+        total: 0,
+        currentUser: 0,
+        isLoaded: false,
+      });
+
+      // fetching events
+      console.log("fetching events");
+      setDisplayText("Getting puzzle statistics from contract events...");
+      let events: any[] =
+        (await state.zkappWorkerClient!.fetchEvents()) as any[];
+
+      let currentUserSolvedCount = 0;
+      let puzzleSolvedCount = 0;
+
+      events.map((e) => {
+        if (
+          e.puzzleHash === state.puzzleHashes![selectedPuzzle - 1].toString()
+        ) {
+          puzzleSolvedCount++;
+          if (e.solver === state.publicKey!.toBase58())
+            currentUserSolvedCount++;
+        }
+      });
+
+      setSolved({
+        total: puzzleSolvedCount,
+        currentUser: currentUserSolvedCount,
+        isLoaded: true,
+      });
+      setDisplayText("");
+    }
   };
 
   // -------------------------------------------------------
@@ -344,18 +364,14 @@ export default function Home() {
   if (solved.isLoaded === true && solved.currentUser === 0) {
     solvedContent = (
       <>
-        The puzzle has been solved {solved.total} times. BUT you haven't solved
-        it yet.
+        This puzzle has been solved {solved.total} times. BUT you haven't yet!
       </>
     );
   }
 
   if (solved.isLoaded === true && solved.currentUser > 0) {
     solvedContent = (
-      <>
-        The puzzle has been solved {solved.total} times. AND you are one of
-        them!.
-      </>
+      <>This sudoku has been solved {solved.total} times. AND you have too!</>
     );
   }
 
@@ -374,7 +390,9 @@ export default function Home() {
                 setSelectedPuzzle(Number(e.target.value));
                 setPuzzle(puzzles[Number(e.target.value)]);
                 setSolution(puzzles[Number(e.target.value)]);
+                fetchEvents();
               }}
+              style={{ padding: "0.2rem", fontSize: "1.1rem" }}
             >
               <option value="1">Puzzle 1</option>
               <option value="2">Puzzle 2</option>

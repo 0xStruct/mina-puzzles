@@ -36,7 +36,50 @@ export default function Home() {
   // in console log sudokus set for contract states will be logged
   let sudokus = [
     [[]], // empty puzzle for index 0
-    [[9,1,7,8,0,2,4,5,3],[3,5,2,7,1,4,6,9,8],[6,8,4,3,5,9,2,1,7],[8,7,6,5,4,1,9,3,2],[5,2,1,6,9,3,7,8,0],[4,9,3,2,0,8,1,0,5],[1,6,8,4,0,7,0,2,9],[2,4,9,1,8,5,0,7,6],[7,0,5,0,2,6,8,4,1]],[[0,9,5,2,4,8,0,7,1],[0,4,7,6,0,1,3,9,8],[6,1,8,3,7,9,2,5,4],[1,5,2,7,0,6,8,4,3],[7,8,3,4,0,5,1,6,9],[0,0,9,8,1,3,0,2,5],[5,0,4,0,8,2,9,0,6],[9,3,0,5,0,0,0,8,2],[0,0,6,9,0,0,5,1,7]],[[0,1,0,2,4,5,8,0,3],[9,5,0,6,3,1,4,2,7],[2,3,0,8,0,0,1,5,6],[1,6,2,4,0,3,0,0,8],[8,7,5,0,2,9,6,3,0],[0,4,9,7,0,6,2,1,5],[5,2,1,3,6,8,0,0,9],[0,8,3,9,7,2,5,6,0],[0,0,0,0,1,4,3,8,2]],[[1,3,0,0,0,0,0,0,0],[4,0,9,0,3,2,0,0,0],[5,6,2,0,7,4,9,8,3],[0,0,4,2,0,9,5,0,8],[6,0,0,8,4,1,0,9,2],[9,2,0,7,0,3,0,6,1],[0,9,0,0,1,0,8,4,5],[3,7,0,4,0,8,6,0,9],[8,0,1,6,0,5,3,0,7]]
+    [
+      [9, 1, 7, 8, 0, 2, 4, 5, 3],
+      [3, 5, 2, 7, 1, 4, 6, 9, 8],
+      [6, 8, 4, 3, 5, 9, 2, 1, 7],
+      [8, 7, 6, 5, 4, 1, 9, 3, 2],
+      [5, 2, 1, 6, 9, 3, 7, 8, 0],
+      [4, 9, 3, 2, 0, 8, 1, 0, 5],
+      [1, 6, 8, 4, 0, 7, 0, 2, 9],
+      [2, 4, 9, 1, 8, 5, 0, 7, 6],
+      [7, 0, 5, 0, 2, 6, 8, 4, 1],
+    ],
+    [
+      [0, 9, 5, 2, 4, 8, 0, 7, 1],
+      [0, 4, 7, 6, 0, 1, 3, 9, 8],
+      [6, 1, 8, 3, 7, 9, 2, 5, 4],
+      [1, 5, 2, 7, 0, 6, 8, 4, 3],
+      [7, 8, 3, 4, 0, 5, 1, 6, 9],
+      [0, 0, 9, 8, 1, 3, 0, 2, 5],
+      [5, 0, 4, 0, 8, 2, 9, 0, 6],
+      [9, 3, 0, 5, 0, 0, 0, 8, 2],
+      [0, 0, 6, 9, 0, 0, 5, 1, 7],
+    ],
+    [
+      [0, 1, 0, 2, 4, 5, 8, 0, 3],
+      [9, 5, 0, 6, 3, 1, 4, 2, 7],
+      [2, 3, 0, 8, 0, 0, 1, 5, 6],
+      [1, 6, 2, 4, 0, 3, 0, 0, 8],
+      [8, 7, 5, 0, 2, 9, 6, 3, 0],
+      [0, 4, 9, 7, 0, 6, 2, 1, 5],
+      [5, 2, 1, 3, 6, 8, 0, 0, 9],
+      [0, 8, 3, 9, 7, 2, 5, 6, 0],
+      [0, 0, 0, 0, 1, 4, 3, 8, 2],
+    ],
+    [
+      [1, 3, 0, 0, 0, 0, 0, 0, 0],
+      [4, 0, 9, 0, 3, 2, 0, 0, 0],
+      [5, 6, 2, 0, 7, 4, 9, 8, 3],
+      [0, 0, 4, 2, 0, 9, 5, 0, 8],
+      [6, 0, 0, 8, 4, 1, 0, 9, 2],
+      [9, 2, 0, 7, 0, 3, 0, 6, 1],
+      [0, 9, 0, 0, 1, 0, 8, 4, 5],
+      [3, 7, 0, 4, 0, 8, 6, 0, 9],
+      [8, 0, 1, 6, 0, 5, 3, 0, 7],
+    ],
   ];
 
   let [sudoku, setSudoku] = useState(sudokus[1]);
@@ -100,24 +143,6 @@ export default function Home() {
 
         await zkappWorkerClient.initZkappInstance(zkappPublicKey);
 
-        // fetching events
-        console.log("fetching events");
-        setDisplayText("Getting puzzle statistics from contract events...");
-        let events: any[] = (await zkappWorkerClient.fetchEvents()) as any[];
-
-        let currentUserSolvedCount = 0;
-
-        events.map((e) => {
-          if (e.solver === publicKeyBase58) currentUserSolvedCount++;
-        });
-
-        setSolved({
-          total: events.length,
-          currentUser: currentUserSolvedCount,
-          isLoaded: true,
-        });
-        setDisplayText("");
-
         console.log("Getting zkApp state...");
         setDisplayText("Getting zkApp state...");
         await zkappWorkerClient.fetchAccount({ publicKey: zkappPublicKey });
@@ -150,6 +175,8 @@ export default function Home() {
 
   useEffect(() => {
     (async () => {
+      await fetchEvents();
+
       if (state.hasBeenSetup && !state.accountExists) {
         for (;;) {
           setDisplayText("Checking if fee payer account exists...");
@@ -213,6 +240,42 @@ export default function Home() {
     setDisplayText(transactionLink);
 
     setState({ ...state, creatingTransaction: false });
+  };
+
+  const fetchEvents = async () => {
+    if (state.hasBeenSetup) {
+      setSolved({
+        total: 0,
+        currentUser: 0,
+        isLoaded: false,
+      });
+
+      // fetching events
+      console.log("fetching events");
+      setDisplayText("Getting puzzle statistics from contract events...");
+      let events: any[] =
+        (await state.zkappWorkerClient!.fetchEvents()) as any[];
+
+      let currentUserSolvedCount = 0;
+      let sudokuSolvedCount = 0;
+
+      events.map((e) => {
+        if (
+          e.sudokuHash === state.sudokuHashes![selectedSudoku - 1].toString()
+        ) {
+          sudokuSolvedCount++;
+          if (e.solver === state.publicKey!.toBase58())
+            currentUserSolvedCount++;
+        }
+      });
+
+      setSolved({
+        total: sudokuSolvedCount,
+        currentUser: currentUserSolvedCount,
+        isLoaded: true,
+      });
+      setDisplayText("");
+    }
   };
 
   // -------------------------------------------------------
@@ -316,8 +379,7 @@ export default function Home() {
   if (solved.isLoaded === true && solved.currentUser === 0) {
     solvedContent = (
       <>
-        The sudoku has been solved {solved.total} times. BUT you haven't solved
-        it yet.
+        This sudoku has been solved {solved.total} times. BUT you haven't yet!
       </>
     );
   }
@@ -325,8 +387,7 @@ export default function Home() {
   if (solved.isLoaded === true && solved.currentUser > 0) {
     solvedContent = (
       <>
-        The sudoku has been solved {solved.total} times. AND you are one of
-        them!.
+        This sudoku has been solved {solved.total} times. AND you have too!
       </>
     );
   }
@@ -346,7 +407,9 @@ export default function Home() {
                 setSelectedSudoku(Number(e.target.value));
                 setSudoku(sudokus[Number(e.target.value)]);
                 setSolution(sudokus[Number(e.target.value)]);
+                fetchEvents();
               }}
+              style={{ padding: "0.2rem", fontSize: "1.1rem" }}
             >
               <option value="1">Sudoku 1</option>
               <option value="2">Sudoku 2</option>

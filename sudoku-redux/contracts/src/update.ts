@@ -63,7 +63,7 @@ let zkApp = new SudokuZkApp(zkAppAddress);
 
 const sudokus = [generateSudoku(0.1), generateSudoku(0.2), generateSudoku(0.3), generateSudoku(0.4)];
 // note down the output for use in the UI
-console.log("4 sudokus generated. note it down for use in UI");
+console.log("4 sudokus generated (easy to medium). note it down for use in UI");
 console.log(JSON.stringify(sudokus));
 
 let sentTx;
