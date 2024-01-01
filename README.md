@@ -1,12 +1,10 @@
-
-  
-
 # 🧩 mina-puzzles
 series of simple puzzle games built using o1js on Mina
 
 ![mina-puzzles-banner](files/mina-puzzles-122023.png)
 
 [![demo video](http://img.youtube.com/vi/ynLKD_abuBQ/0.jpg)](https://www.youtube.com/watch?v=ynLKD_abuBQ "Demo Video")
+Demo video: https://www.youtube.com/watch?v=ynLKD_abuBQ
 
 ## 🎯 Objectives
 - Learn and share my learning as part of my Mina Navigator journey
@@ -26,7 +24,7 @@ series of simple puzzle games built using o1js on Mina
 -  **Where is Mina?:** [website](https://mina-puzzles-where.vercel.app/)
 -  **Quiz:** [website](https://mina-puzzles-quiz.vercel.app/)
 
-## 🎯 Ideas for puzzles/games
+## 🧠 Ideas for puzzles/games
 Please suggest, if you have one :)
 - [x] where is waldo? where is mina?
 - [x] quiz / trivia
@@ -144,3 +142,4 @@ Video says a million words. Lots of videos would be used to document my learning
 	- From `git clone` to deploying contract on Mina, and launching the UI site on Vercel
     - https://wind-radish-f93.notion.site/Mina-Puzzle-detailed-code-walkthrough-with-video-b7d03a0c7d1c4251b0b56371cd82aa5a
 - Demo videos of games
+- https://www.youtube.com/watch?v=ynLKD_abuBQ 
