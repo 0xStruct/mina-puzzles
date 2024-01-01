@@ -6,6 +6,8 @@ series of simple puzzle games built using o1js on Mina
 
 ![mina-puzzles-banner](files/mina-puzzles-122023.png)
 
+[![demo video](http://img.youtube.com/vi/ynLKD_abuBQ/0.jpg)](https://www.youtube.com/watch?v=ynLKD_abuBQ "Demo Video")
+
 ## 🎯 Objectives
 - Learn and share my learning as part of my Mina Navigator journey
 - Start with simple but fun and meaningful
