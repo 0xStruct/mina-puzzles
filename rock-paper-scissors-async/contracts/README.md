@@ -1,11 +1,13 @@
-# Mina zkApp: Where is Mina?
+# Mina zkApp: Rock Paper Scissors ASYNC
 
-This contract is a quick reaction puzzle to find Mina and Waldo!
-Lots of explainer on zero-knowledge reference to paper-based where is waldo?
-This puzzle is a fun take on that.
+This project is to solve the problem in Rock-Paper-Scissors game where synchronous play is required.
+Even IRL, cheating could happen through expression reading.
 
-This contract would host multiple games and support multiple solvers per contract.
-To do that Mina event (along with archival node) and composable leaderboard utilizing Merkle Tree will be used.
+With Mina private proof, private choices can be made then revealed later for total fairness.
+
+2 approaches were explored:
+#1 Contract as game room
+#2 Recursive proof, then P2P play via websocket
 
 ## How to start, build
 
