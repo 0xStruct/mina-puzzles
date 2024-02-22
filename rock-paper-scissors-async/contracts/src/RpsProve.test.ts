@@ -46,7 +46,7 @@ describe("rps-prove", () => {
     it("Player1 reveals with wrong secret", async () => {
       await expect(async () => {
         revealProof = await RpsProve.reveal(
-          Field(choiceProof.toJSON().publicOutput[0]), // hashedChoice
+          Field(choiceProof.publicOutput.hashedChoice), // hashedChoice
           Field(111), // wrong secret
           gameId
         );
@@ -55,7 +55,7 @@ describe("rps-prove", () => {
 
     it("Player1 reveals with right secret", async () => {
       revealProof = await RpsProve.reveal(
-        Field(choiceProof.toJSON().publicOutput[0]), // hashedChoice
+        Field(choiceProof.publicOutput.hashedChoice), // hashedChoice
         Field(player1Secret), // wrong secret
         gameId
       );
