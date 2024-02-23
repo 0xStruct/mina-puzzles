@@ -99,4 +99,4 @@ export const TictactoeProve = ZkProgram({
   },
 });
 
-export class TicTacToeMoveProof extends ZkProgram.Proof(TictactoeProve) {}
+export class TictactoeProveProof extends ZkProgram.Proof(TictactoeProve) {}

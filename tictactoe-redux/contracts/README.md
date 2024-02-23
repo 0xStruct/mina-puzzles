@@ -19,6 +19,10 @@ This project is to make Tictactoe more approachable by users P2P to play via Web
         - `gameId` is used to prevent replay attacks
 
 #3 Above concept with settlement on Mina blockchain
+    please refer to `src/TictactoeProveValidator.ts`
+        - gameProof is checked with `validate` method to see if there is a winner
+        - `gameCount` is tracked within contract @state
+        - event is emitted if there is a winner
 
 ## How to start, build
 
