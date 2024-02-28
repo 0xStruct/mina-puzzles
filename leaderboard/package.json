@@ -39,6 +39,7 @@
     "o1js": "^0.13.0"
   },
   "dependencies": {
+    "experimental-zkapp-offchain-storage-punkpoll": "0.2.4",
     "xmlhttprequest-ts": "^1.0.1"
   }
 }

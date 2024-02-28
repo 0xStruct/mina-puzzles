@@ -36,6 +36,7 @@ export class Player extends Struct({
 export class Leaderboard extends SmartContract {
   @state(Field) boardMapRoot = State<Field>();
   @state(PublicKey) adminPublicKey = State<PublicKey>();
+  @state(PublicKey) serverPublicKey = State<PublicKey>();
 
   @method init() {
     super.init();
@@ -43,6 +44,7 @@ export class Leaderboard extends SmartContract {
     const emptyMapRoot = new MerkleMap().getRoot();
     this.boardMapRoot.set(emptyMapRoot);
     this.adminPublicKey.set(PublicKey.empty());
+    this.serverPublicKey.set(PublicKey.empty());
   }
 
   @method setAdminPublicKey(adminPublicKey: PublicKey) {
@@ -50,6 +52,13 @@ export class Leaderboard extends SmartContract {
     this.adminPublicKey.getAndAssertEquals().assertEquals(PublicKey.empty());
 
     this.adminPublicKey.set(adminPublicKey);
+  }
+
+  @method setServerPublicKey(serverPublicKey: PublicKey) {
+    // only allow if empty
+    this.serverPublicKey.getAndAssertEquals().assertEquals(PublicKey.empty());
+
+    this.serverPublicKey.set(serverPublicKey);
   }
 
   @method addPoint(
