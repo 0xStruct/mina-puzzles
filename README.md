@@ -1,9 +1,12 @@
 # 🧩 mina-puzzles
 series of simple puzzle games built using o1js on Mina
 
+https://mina-puzzles.vercel.app
+
 ![mina-puzzles-banner](files/mina-puzzles-122023.png)
 
 [![demo video](http://img.youtube.com/vi/ynLKD_abuBQ/0.jpg)](https://www.youtube.com/watch?v=ynLKD_abuBQ "Demo Video")
+
 Demo video: https://www.youtube.com/watch?v=ynLKD_abuBQ
 
 ## 🎯 Objectives
@@ -23,6 +26,8 @@ Demo video: https://www.youtube.com/watch?v=ynLKD_abuBQ
 -  **Sudoku Redux:** [website](https://mina-puzzles-sudoku-redux.vercel.app/)
 -  **Where is Mina?:** [website](https://mina-puzzles-where.vercel.app/)
 -  **Quiz:** [website](https://mina-puzzles-quiz.vercel.app/)
+-  **Tictactoe Redux:** [demo](https://www.youtube.com/watch?v=wbA30WsLbOI)
+-  **RockPaperScissors Async:** [demo](https://www.youtube.com/watch?v=xUO4q5diL08)
 
 ## 🧠 Ideas for puzzles/games
 Please suggest, if you have one :)
@@ -30,9 +35,9 @@ Please suggest, if you have one :)
 - [x] quiz / trivia
 - [x] sudoku redux
 - [x] magic squares
-- [ ] paper-scissor-stone 
+- [x] paper-scissor-stone 
 	- P2P, private commits and reveal at the same time
-- [ ] P2P tic-tac-toe
+- [x] P2P tic-tac-toe
 	- Recursive proof, P2P via webRTC/websocket
 
 ## 🧪 Concepts to be explored and implemented
@@ -128,11 +133,18 @@ Tutorial 4 is referenced https://docs.minaprotocol.com/zkapps/tutorials/zkapp-ui
 
 Other concepts such as pre-compilation or cloud compilation would be explored in the following months
 
+### On P2P realtime game play
+
+Websocket (via Ably) is used for sending game updates (recursive proof and chat messages) realtime between 2 players.
+Key Value storage (via Vercel) is used to store active game channels, to cache proofs
+
+Mina's recursive proofs are awesome to create P2P games, to reduce UX frictions as minimal wallet and blockchain interactions are needed, but still with Mina's full ZK offerings
+
 #### On structure and scaffold
 
 As I build more and more puzzles/games, I start to notice how structure and off-the-shelf components could be useful to smoothen developer journey and boost productivity.
 
-It is on my mind to make this into a Mina puzzle starter kit.
+It is on my mind to make this into a  🕹️ **Mina game starter kit**
 
 ## 📹 Video documentation
 
@@ -143,3 +155,5 @@ Video says a million words. Lots of videos would be used to document my learning
     - https://wind-radish-f93.notion.site/Mina-Puzzle-detailed-code-walkthrough-with-video-b7d03a0c7d1c4251b0b56371cd82aa5a
 - Demo videos of games
 - https://www.youtube.com/watch?v=ynLKD_abuBQ 
+- https://www.youtube.com/watch?v=wbA30WsLbOI (Tictactoe Redux)
+- https://www.youtube.com/watch?v=xUO4q5diL08 (RockPaperScissors Async)

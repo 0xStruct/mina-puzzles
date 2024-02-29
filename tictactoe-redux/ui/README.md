@@ -6,7 +6,7 @@ The game can be play realtime or asynchronously as last game proof is cached and
 P2P realtime game play is now available by leveraging recursive proofs and websocket.
 No Mina wallet or blockchain interactions needed but still utilizing Mina ZK features.
 
-Demo video: [to be added later]
+Demo video: https://www.youtube.com/watch?v=wbA30WsLbOI
 
 - UI is built with NextJS
 - Websocket is powered by Ably

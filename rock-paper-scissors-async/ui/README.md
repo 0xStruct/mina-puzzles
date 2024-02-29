@@ -6,7 +6,7 @@ Commit choices privately the reveal later for fair play.
 P2P realtime game play is now possible by leveraging recursive proofs and websocket.
 No Mina wallet or blockchain interactions needed but still utilizing Mina ZK features.
 
-Demo video: [to be added later]
+Demo video: https://www.youtube.com/watch?v=xUO4q5diL08
 
 - UI is built with NextJS
 - Websocket is powered by Ably
